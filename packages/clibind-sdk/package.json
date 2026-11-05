@@ -1,0 +1,38 @@
+{
+  "name": "@ai-swfactory-oss/clibind-sdk",
+  "description": "The clibind compiler: binds a CLI to an existing TypeScript SDK's typed operations and compiles it, taking plain data and returning files. A fake lives under ./testing.",
+  "version": "0.0.0",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ai-swfactory-oss/clibind.git",
+    "directory": "packages/clibind-sdk"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./testing": {
+      "source": "./src/testing/index.ts",
+      "types": "./dist/testing/index.d.ts",
+      "import": "./dist/testing/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "src",
+    "!dist/**/*.tgz"
+  ],
+  "devDependencies": {
+    "@types/node": "^24.0.0"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "clibind-monorepo",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "license": "MIT",
+  "description": "clibind workspace: the clibind compiler (SDK) and its command line.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ai-swfactory-oss/clibind.git"
+  },
+  "packageManager": "pnpm@10.32.1",
+  "devDependencies": {
+    "@types/node": "^24.0.0"
+  }
+}

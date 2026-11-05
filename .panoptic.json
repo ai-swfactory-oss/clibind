@@ -1,4 +1,9 @@
 {
   "version": 4,
-  "defaultBranch": "main"
+  "defaultBranch": "main",
+  "guard": {},
+  "packages": {
+    "@ai-swfactory-oss/clibind": { "kind": "cli" },
+    "@ai-swfactory-oss/clibind-sdk": { "kind": "sdk" }
+  }
 }
