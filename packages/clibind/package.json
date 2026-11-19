@@ -1,7 +1,7 @@
 {
   "name": "@ai-swfactory-oss/clibind",
   "description": "The clibind command line: a shallow wrapper whose every command is one operation of @ai-swfactory-oss/clibind-sdk.",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "license": "MIT",
   "repository": {
