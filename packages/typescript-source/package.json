@@ -1,7 +1,7 @@
 {
   "name": "@ai-swfactory-oss/typescript-source",
   "description": "Turns a plain-data description of a TypeScript module into its final, deterministic source text.",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "license": "MIT",
   "repository": {
