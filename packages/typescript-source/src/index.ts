@@ -3,6 +3,7 @@ import { renderModule } from './render'
 
 export type {
   ArrayExpression,
+  AssignExpression,
   ClassDeclaration,
   ClassMember,
   ConstDeclaration,
@@ -11,7 +12,9 @@ export type {
   Expression,
   ExpressionStatement,
   FunctionDeclaration,
+  ImportAttribute,
   ImportDeclaration,
+  ImportDefault,
   ImportGroup,
   ImportSpecifier,
   Layout,

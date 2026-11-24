@@ -4,6 +4,7 @@ import type {
   DataValue,
   Declaration,
   Expression,
+  ImportAttribute,
   ImportDeclaration,
   ImportGroup,
   ImportSpecifier,
@@ -176,6 +177,8 @@ const expressionText = (expression: Expression, depth: number): string => {
       return `/${expression.pattern}/${expression.flags}`
     case 'this':
       return 'this'
+    case 'assign':
+      return `${expressionText(expression.target, depth)} = ${expressionText(expression.value, depth)}`
   }
 }
 
@@ -231,13 +234,30 @@ const declarationText = (declaration: Declaration): string => {
 const specifierText = (specifier: ImportSpecifier, wholeTypeOnly: boolean): string =>
   `${specifier.typeOnly === true && !wholeTypeOnly ? 'type ' : ''}${specifier.name}${specifier.alias === undefined ? '' : ` as ${specifier.alias}`}`
 
+const attributesText = (attributes: readonly ImportAttribute[]): string =>
+  attributes.length === 0
+    ? ''
+    : ` with { ${attributes.map(attribute => `${propertyKey(attribute.key)}: ${stringLiteral(attribute.value)}`).join(', ')} }`
+
+const importClause = (declaration: ImportDeclaration, wholeTypeOnly: boolean): string => {
+  const bindings: string[] = []
+  if (declaration.default.kind === 'default') {
+    bindings.push(declaration.default.name)
+  }
+  if (declaration.names.length > 0) {
+    bindings.push(`{ ${declaration.names.map(specifier => specifierText(specifier, wholeTypeOnly)).join(', ')} }`)
+  }
+  return bindings.join(', ')
+}
+
 const importText = (declaration: ImportDeclaration): string => {
   const wholeTypeOnly = declaration.typeOnly === true
-  if (declaration.names.length === 0) {
-    return `import ${stringLiteral(declaration.from)}`
+  const specifier = `${stringLiteral(declaration.from)}${attributesText(declaration.attributes)}`
+  const clause = importClause(declaration, wholeTypeOnly)
+  if (clause === '') {
+    return `import ${specifier}`
   }
-  const names = declaration.names.map(specifier => specifierText(specifier, wholeTypeOnly)).join(', ')
-  return `import ${wholeTypeOnly ? 'type ' : ''}{ ${names} } from ${stringLiteral(declaration.from)}`
+  return `import ${wholeTypeOnly ? 'type ' : ''}${clause} from ${specifier}`
 }
 
 const groupText = (group: ImportGroup): string => group.map(importText).join('\n')

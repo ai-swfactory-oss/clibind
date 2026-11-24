@@ -56,6 +56,13 @@ export type Expression =
   | ArrayExpression
   | RegExpExpression
   | ThisExpression
+  | AssignExpression
+
+export interface AssignExpression {
+  readonly kind: 'assign'
+  readonly target: Expression
+  readonly value: Expression
+}
 
 export interface ConstDeclaration {
   readonly kind: 'const'
@@ -104,10 +111,19 @@ export interface ImportSpecifier {
   readonly typeOnly?: boolean
 }
 
+export type ImportDefault = { readonly kind: 'default'; readonly name: string } | { readonly kind: 'none' }
+
+export interface ImportAttribute {
+  readonly key: string
+  readonly value: string
+}
+
 export interface ImportDeclaration {
   readonly from: string
   readonly typeOnly?: boolean
+  readonly default: ImportDefault
   readonly names: readonly ImportSpecifier[]
+  readonly attributes: readonly ImportAttribute[]
 }
 
 export type ImportGroup = readonly ImportDeclaration[]
