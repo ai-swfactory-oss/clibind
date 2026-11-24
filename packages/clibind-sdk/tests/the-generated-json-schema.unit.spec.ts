@@ -2,10 +2,20 @@ import { describe, expect, it } from 'vitest'
 import { z } from 'zod'
 
 import { bindingModelJsonSchema, PARSERS } from '../src/index'
-import { callsBinding } from './fixtures/calls-binding'
 
 const validBindings = (): readonly unknown[] => [
-  ...callsBinding.operations.map(operation => operation.model),
+  {
+    command: ['calls', 'list'],
+    input: [
+      { kind: 'positional', field: 'account', type: 'string' },
+      { kind: 'option', flag: '--since', field: 'since', type: 'string' },
+      { kind: 'option', flag: '--limit', field: 'limit', type: 'number' },
+      { kind: 'switch', flag: '--missed', field: 'missed' },
+    ],
+    output: { parser: 'json' },
+  },
+  { command: ['calls', 'get'], input: [{ kind: 'positional', field: 'id', type: 'string' }], output: { parser: 'json' } },
+  { command: ['numbers', 'release'], input: [{ kind: 'positional', field: 'number', type: 'string' }], output: { parser: 'exit-code' } },
   ...PARSERS.map(parser => ({ command: ['status'], input: [], output: { parser } })),
 ]
 

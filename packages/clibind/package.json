@@ -22,6 +22,7 @@
   ],
   "dependencies": {
     "@ai-swfactory-oss/clibind-sdk": "workspace:*",
+    "@ai-swfactory-oss/files": "^6.0.1",
     "@ai-swfactory-oss/terminal": "^1.0.0",
     "commander": "^14.0.3"
   },

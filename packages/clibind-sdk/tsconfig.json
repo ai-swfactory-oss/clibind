@@ -25,6 +25,7 @@
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
+    "resolveJsonModule": true,
     "useDefineForClassFields": true,
     "allowJs": true,
     "checkJs": true,
@@ -55,6 +56,11 @@
       ]
     }
   },
+  "references": [
+    {
+      "path": "../typescript-source"
+    }
+  ],
   "include": [
     "src",
     "tests",

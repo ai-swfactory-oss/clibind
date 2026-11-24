@@ -33,6 +33,9 @@
     "!dist/**/*.tgz"
   ],
   "dependencies": {
+    "@ai-swfactory-oss/files": "^6.0.1",
+    "@ai-swfactory-oss/typescript": "^3.0.0",
+    "@ai-swfactory-oss/typescript-source": "workspace:*",
     "zod": "^4.6.5"
   },
   "devDependencies": {

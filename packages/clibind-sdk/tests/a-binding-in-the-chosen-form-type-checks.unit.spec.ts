@@ -1,11 +1,25 @@
 import { describe, expect, it } from 'vitest'
 
 import { bind } from '../src/index'
-import type { CreateCallsSdk } from './fixtures/calls-sdk'
+
+interface Call {
+  readonly id: string
+  readonly from: string
+}
+
+interface CallsSdk {
+  readonly calls: {
+    readonly list: (data: { readonly account: string }) => Promise<readonly Call[]>
+    readonly get: (data: { readonly id: string }) => Promise<Call>
+  }
+  readonly numbers: {
+    readonly release: (data: { readonly number: string }) => Promise<void>
+  }
+}
 
 describe('a clibind binding is written in Form 1, selector lambdas through identity helpers', () => {
   it('a Form 1 binding over three operations of the fixture sdk type-checks', () => {
-    const binding = bind<ReturnType<CreateCallsSdk>>(op => [
+    const binding = bind<CallsSdk>({ create: 'createCallsSdk' }, op => [
       op(api => api.calls.list, {
         command: ['calls', 'list'],
         input: [{ kind: 'positional', field: 'account', type: 'string' }],

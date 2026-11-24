@@ -17,6 +17,9 @@ importers:
       '@ai-swfactory-oss/clibind-sdk':
         specifier: workspace:*
         version: link:../clibind-sdk
+      '@ai-swfactory-oss/files':
+        specifier: ^6.0.1
+        version: 6.0.1
       '@ai-swfactory-oss/terminal':
         specifier: ^1.0.0
         version: 1.0.0
@@ -30,6 +33,15 @@ importers:
 
   packages/clibind-sdk:
     dependencies:
+      '@ai-swfactory-oss/files':
+        specifier: ^6.0.1
+        version: 6.0.1
+      '@ai-swfactory-oss/typescript':
+        specifier: ^3.0.0
+        version: 3.0.0
+      '@ai-swfactory-oss/typescript-source':
+        specifier: workspace:*
+        version: link:../typescript-source
       zod:
         specifier: ^4.6.5
         version: 4.6.7
@@ -46,8 +58,17 @@ importers:
 
 packages:
 
+  '@ai-swfactory-oss/bytes@1.0.2':
+    resolution: {integrity: sha512-mh8WRYff0cke4blSxlodfd85OBva2nrsVq6oPGyko/boEzchg75QHAO8E+3cAlaI3Owht1TEGUyb1VCh1lI+GQ==, tarball: https://npm.pkg.github.com/download/@ai-swfactory-oss/bytes/1.0.2/1454f493fda299eff49e9d59572f936c7121b0b3}
+
+  '@ai-swfactory-oss/files@6.0.1':
+    resolution: {integrity: sha512-lkEhd5DXZ9qEcvyB2s8qPoOI3wS/9PhpMi4/Z7udAqlmW6DO73UnQQ+B+QLzOo8jaHwfdA4m2ieyPcjS9Guwyg==, tarball: https://npm.pkg.github.com/download/@ai-swfactory-oss/files/6.0.1/7941df195ffd50690b5a4b4e483627cb55e65ae5}
+
   '@ai-swfactory-oss/terminal@1.0.0':
     resolution: {integrity: sha512-15EhD4hXnv+Rz0V92FOccDsiGEbQRoAqEezYhf5UkmIta7Yzhrbec2Vl52mU9JhHFskKcja9M1/jozFpCINn0g==, tarball: https://npm.pkg.github.com/download/@ai-swfactory-oss/terminal/1.0.0/c92682ddb796b07d2f1e27891de9cb980213620b}
+
+  '@ai-swfactory-oss/typescript@3.0.0':
+    resolution: {integrity: sha512-q6Py+19Sd/0z42hdjdAUx3uWD16/N8uyYpAABWie/19KR1LsfnLEH3no3jKY7tu1d6Iq1Sl5evgZIiXthyQRDg==, tarball: https://npm.pkg.github.com/download/@ai-swfactory-oss/typescript/3.0.0/86b52ef13a7f1534eb19d302ca9dd658cbd0fc78}
 
   '@types/node@24.19.2':
     resolution: {integrity: sha512-93d49wCWJkCyN87MxLpNN6KXPCwFw7bVUg79mGUV1OS40JGWwVCr8n61DXCSqz7CV6/VfPkb7xec7uP2M+QHWQ==}
@@ -55,6 +76,11 @@ packages:
   commander@14.0.3:
     resolution: {integrity: sha512-H+y0Jo/T1RZ9qPP4Eh1pkcQcLRglraJaSLoyOtHxu6AapkjWVCy2Sit1QQ4x3Dng8qDlSsZEet7g5Pq06MvTgw==}
     engines: {node: '>=20'}
+
+  typescript@6.0.3:
+    resolution: {integrity: sha512-y2TvuxSZPDyQakkFRPZHKFm+KKVqIisdg9/CZwm9ftvKXLP8NRWj38/ODjNbr43SsoXqNuAisEf1GdCxqWcdBw==}
+    engines: {node: '>=14.17'}
+    hasBin: true
 
   undici-types@7.24.6:
     resolution: {integrity: sha512-WRNW+sJgj5OBN4/0JpHFqtqzhpbnV0GuB+OozA9gCL7a993SmU+1JBZCzLNxYsbMfIeDL+lTsphD5jN5N+n0zg==}
@@ -64,13 +90,26 @@ packages:
 
 snapshots:
 
+  '@ai-swfactory-oss/bytes@1.0.2': {}
+
+  '@ai-swfactory-oss/files@6.0.1':
+    dependencies:
+      '@ai-swfactory-oss/bytes': 1.0.2
+
   '@ai-swfactory-oss/terminal@1.0.0': {}
+
+  '@ai-swfactory-oss/typescript@3.0.0':
+    dependencies:
+      '@ai-swfactory-oss/files': 6.0.1
+      typescript: 6.0.3
 
   '@types/node@24.19.2':
     dependencies:
       undici-types: 7.24.6
 
   commander@14.0.3: {}
+
+  typescript@6.0.3: {}
 
   undici-types@7.24.6: {}
 
