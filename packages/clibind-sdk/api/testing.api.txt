@@ -1,1 +1,0 @@
-createFakeClibind: const createFakeClibind: (result?: CompileResult) => Clibind
