@@ -1,3 +1,6 @@
+export type { Binding, BoundOperation, Op, Operation } from './binding'
+export { bind } from './binding'
+
 export interface GeneratedFile {
   readonly path: string
   readonly contents: string

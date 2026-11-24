@@ -1,4 +1,9 @@
+Binding: interface Binding<Api> { readonly operations: readonly BoundOperation<Api>[]; }
+BoundOperation: interface BoundOperation<Api> { readonly select: (api: Api) => Operation; readonly command: readonly string[]; }
 Clibind: interface Clibind { readonly compile: () => CompileResult; }
 CompileResult: interface CompileResult { readonly files: readonly GeneratedFile[]; }
 GeneratedFile: interface GeneratedFile { readonly path: string; readonly contents: string; }
+Op: type Op<Api> = (select: (api: Api) => Operation, command: readonly string[]) => BoundOperation<Api>;
+Operation: type Operation = (data: never) => unknown;
+bind: const bind: <Api>(define: (op: Op<Api>) => readonly BoundOperation<Api>[]) => Binding<Api>
 createClibind: const createClibind: () => Clibind
