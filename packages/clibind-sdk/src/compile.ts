@@ -31,7 +31,7 @@ export const compile = (tree: Tree, bindingPath: string, sdkPath: string): Compi
     kind: 'compiled',
     outputs: {
       entries: [
-        output(BINDING_JSON_PATH, bindingJson(binding.value.operations)),
+        output(BINDING_JSON_PATH, bindingJson(binding.value.globals, binding.value.operations)),
         output(CLI_PATH, cliSource(sdk.value.packageName, sdk.value.create, adapters.value)),
       ],
     },

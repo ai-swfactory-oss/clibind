@@ -11,7 +11,12 @@ const CALLS_SDK_MANIFEST = `${JSON.stringify({ name: '@acme/calls-sdk', type: 'm
 export const CALLS_BINDING_SOURCE = `import { bind } from '@ai-swfactory-oss/clibind-sdk'
 import type { CreateCallsSdk } from '@acme/calls-sdk'
 
-export const callsBinding = bind<ReturnType<CreateCallsSdk>>({ create: 'createCallsSdk' }, op => [
+export const callsBinding = bind<ReturnType<CreateCallsSdk>, Parameters<CreateCallsSdk>[0]>({
+  create: 'createCallsSdk',
+  globals: {
+    account: { flag: '--account', env: 'CALLS_ACCOUNT', field: 'account', type: 'string' },
+  },
+}, op => [
   op(api => api.calls.list, {
     command: ['calls', 'list'],
     input: [

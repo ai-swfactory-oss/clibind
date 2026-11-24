@@ -15,6 +15,14 @@ process.exitCode = await main({
 `
 
 export const CALLS_CLI_BINDING_JSON = `{
+  "globals": [
+    {
+      "flag": "--account",
+      "env": "CALLS_ACCOUNT",
+      "field": "account",
+      "type": "string"
+    }
+  ],
   "operations": [
     {
       "operation": [

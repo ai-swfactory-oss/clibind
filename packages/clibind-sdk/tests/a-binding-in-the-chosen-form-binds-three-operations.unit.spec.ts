@@ -18,23 +18,26 @@ const callsApi = {
 
 describe('a Form 1 binding picks each operation by reference', () => {
   it('a Form 1 binding over the fixture sdk yields its three operations', () => {
-    const binding = bind<typeof callsApi>({ create: 'createCallsSdk' }, op => [
-      op(api => api.calls.list, {
-        command: ['calls', 'list'],
-        input: [{ kind: 'positional', field: 'account', type: 'string' }],
-        output: { parser: 'json' },
-      }),
-      op(api => api.calls.get, {
-        command: ['calls', 'get'],
-        input: [{ kind: 'positional', field: 'id', type: 'string' }],
-        output: { parser: 'json' },
-      }),
-      op(api => api.numbers.release, {
-        command: ['numbers', 'release'],
-        input: [{ kind: 'positional', field: 'number', type: 'string' }],
-        output: { parser: 'exit-code' },
-      }),
-    ])
+    const binding = bind<typeof callsApi, { readonly account: string }>(
+      { create: 'createCallsSdk', globals: { account: { flag: '--account', env: 'CALLS_ACCOUNT', field: 'account', type: 'string' } } },
+      op => [
+        op(api => api.calls.list, {
+          command: ['calls', 'list'],
+          input: [{ kind: 'positional', field: 'account', type: 'string' }],
+          output: { parser: 'json' },
+        }),
+        op(api => api.calls.get, {
+          command: ['calls', 'get'],
+          input: [{ kind: 'positional', field: 'id', type: 'string' }],
+          output: { parser: 'json' },
+        }),
+        op(api => api.numbers.release, {
+          command: ['numbers', 'release'],
+          input: [{ kind: 'positional', field: 'number', type: 'string' }],
+          output: { parser: 'exit-code' },
+        }),
+      ],
+    )
 
     const selected = binding.operations.map(operation => operation.select(callsApi))
 

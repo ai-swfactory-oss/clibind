@@ -5,7 +5,7 @@ import { CALLS_BINDING_PATH, CALLS_BINDING_SOURCE, CALLS_SDK_PATH, CALLS_SDK_SOU
 
 const compiledNaming = (create: string): unknown =>
   createClibind().compile(
-    callsTree(CALLS_BINDING_SOURCE.replace("{ create: 'createCallsSdk' }", `{ create: '${create}' }`), CALLS_SDK_SOURCE),
+    callsTree(CALLS_BINDING_SOURCE.replace("create: 'createCallsSdk'", `create: '${create}'`), CALLS_SDK_SOURCE),
     CALLS_BINDING_PATH,
     CALLS_SDK_PATH,
   )

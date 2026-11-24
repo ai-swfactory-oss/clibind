@@ -9,7 +9,7 @@ import { runCli } from '../src/cli-program'
 const BINDING_SOURCE = `import { bind } from '@ai-swfactory-oss/clibind-sdk'
 import type { CreateClockSdk } from '@acme/clock-sdk'
 
-export const clockBinding = bind<ReturnType<CreateClockSdk>>({ create: 'createClockSdk' }, op => [
+export const clockBinding = bind<ReturnType<CreateClockSdk>, Parameters<CreateClockSdk>[0]>({ create: 'createClockSdk', globals: {} }, op => [
   op(api => api.time.now, { command: ['now'], input: [], output: { parser: 'lines' } }),
 ])
 `

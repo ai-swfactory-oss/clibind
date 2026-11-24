@@ -1,6 +1,7 @@
 import { type Expression, type ImportDeclaration, renderTypeScriptSource } from '@ai-swfactory-oss/typescript-source'
 
 import type { CompiledOperation } from './compile-binding'
+import type { GlobalOption } from './model'
 
 export const CLI_PATH = 'cli.ts'
 
@@ -95,9 +96,10 @@ export const cliSource = (packageName: string, create: string, adapters: readonl
     ],
   })
 
-export const bindingJson = (operations: readonly CompiledOperation[]): string =>
+export const bindingJson = (globals: readonly GlobalOption<string>[], operations: readonly CompiledOperation[]): string =>
   `${JSON.stringify(
     {
+      globals: globals.map(({ flag, env, field, type }) => ({ flag, env, field, type })),
       operations: operations.map(({ operation, model }) => ({
         operation,
         command: model.command,

@@ -27,6 +27,13 @@ export interface SwitchArg<F extends string> {
 
 export type InputArg<F extends string> = PositionalArg<F> | OptionArg<F> | SwitchArg<F>
 
+export interface GlobalOption<F extends string> {
+  readonly flag: string
+  readonly env: string
+  readonly field: F
+  readonly type: ScalarType
+}
+
 export interface OutputModel {
   readonly parser: Parser
 }
@@ -93,6 +100,26 @@ export interface RejectedModel {
 export const parseBindingModel = (data: unknown): AcceptedModel | RejectedModel => {
   const result = bindingModelSchema().safeParse(data)
   if (result.success) return { success: true, model: result.data }
+  return {
+    success: false,
+    issues: result.error.issues.map(issue => ({ path: issue.path.map(key => String(key)), message: issue.message })),
+  }
+}
+
+const ENV = /^[A-Za-z_][A-Za-z0-9_]*$/
+
+const globalOptionSchema = z.strictObject({
+  flag: z.string().regex(FLAG),
+  env: z.string().regex(ENV),
+  field: z.string().min(1),
+  type: z.enum(['string', 'number']),
+})
+
+export type GlobalOptionRead = { readonly success: true; readonly option: GlobalOption<string> } | RejectedModel
+
+export const parseGlobalOption = (data: unknown): GlobalOptionRead => {
+  const result = globalOptionSchema.safeParse(data)
+  if (result.success) return { success: true, option: result.data }
   return {
     success: false,
     issues: result.error.issues.map(issue => ({ path: issue.path.map(key => String(key)), message: issue.message })),

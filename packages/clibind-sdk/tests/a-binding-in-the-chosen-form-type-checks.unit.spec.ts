@@ -1,6 +1,14 @@
 import { describe, expect, it } from 'vitest'
 
-import { bind } from '../src/index'
+import { bind, type GlobalOptions } from '../src/index'
+
+interface CallsConfig {
+  readonly account: string
+}
+
+const CALLS_GLOBALS: GlobalOptions<CallsConfig> = {
+  account: { flag: '--account', env: 'CALLS_ACCOUNT', field: 'account', type: 'string' },
+}
 
 interface Call {
   readonly id: string
@@ -19,7 +27,7 @@ interface CallsSdk {
 
 describe('a clibind binding is written in Form 1, selector lambdas through identity helpers', () => {
   it('a Form 1 binding over three operations of the fixture sdk type-checks', () => {
-    const binding = bind<CallsSdk>({ create: 'createCallsSdk' }, op => [
+    const binding = bind<CallsSdk, CallsConfig>({ create: 'createCallsSdk', globals: CALLS_GLOBALS }, op => [
       op(api => api.calls.list, {
         command: ['calls', 'list'],
         input: [{ kind: 'positional', field: 'account', type: 'string' }],

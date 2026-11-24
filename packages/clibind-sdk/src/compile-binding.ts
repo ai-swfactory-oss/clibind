@@ -1,8 +1,8 @@
 import type { Tree } from '@ai-swfactory-oss/files'
-import { moduleSyntaxOf, type SyntaxExpression, type SyntaxStatement } from '@ai-swfactory-oss/typescript'
+import { moduleSyntaxOf, type SyntaxExpression, type SyntaxProperty, type SyntaxStatement } from '@ai-swfactory-oss/typescript'
 
 import { each, fromTypeScript, read, refused, type Step } from './compile-step'
-import { type BindingModel, parseBindingModel } from './model'
+import { type BindingModel, type GlobalOption, parseBindingModel, parseGlobalOption } from './model'
 
 export interface CompiledOperation {
   readonly operation: readonly string[]
@@ -11,6 +11,7 @@ export interface CompiledOperation {
 
 export interface CompiledBinding {
   readonly create: string
+  readonly globals: readonly GlobalOption<string>[]
   readonly operations: readonly CompiledOperation[]
 }
 
@@ -85,12 +86,40 @@ const operationOf = (path: string, opName: string, expression: SyntaxExpression)
   return read({ operation: operation.value, model: parsed.model })
 }
 
-const createOf = (path: string, reference: SyntaxExpression): Step<string> => {
-  if (reference.kind === 'object') {
-    const create = reference.properties.find(property => property.kind === 'property' && property.name === 'create')
-    if (create?.kind === 'property' && create.value.kind === 'string') return read(create.value.value)
+interface SdkReferenceRead {
+  readonly create: string
+  readonly globals: readonly GlobalOption<string>[]
+}
+
+const globalOf = (path: string, property: SyntaxProperty): Step<GlobalOption<string>> => {
+  if (property.kind !== 'property') return refused(path, `the binding's globals hold ${described(property)}, which is not a global option`)
+  const data = dataOf(path, property.value)
+  if (data.kind === 'refused') return data
+  const parsed = parseGlobalOption(data.value)
+  if (!parsed.success) {
+    return {
+      kind: 'refused',
+      diagnostics: parsed.issues.map(issue => ({
+        path,
+        message: `the global option '${property.name}' is invalid at '${issue.path.join('.')}': ${issue.message}`,
+      })),
+    }
   }
-  return refused(path, "the binding's first argument must be { create: '<the sdk's create export>' }")
+  if (parsed.option.field !== property.name) {
+    return refused(path, `the global option '${property.name}' sets the field '${parsed.option.field}', not its own key`)
+  }
+  return read(parsed.option)
+}
+
+const sdkReferenceOf = (path: string, reference: SyntaxExpression): Step<SdkReferenceRead> => {
+  const properties = reference.kind === 'object' ? reference.properties : []
+  const create = properties.find(property => property.kind === 'property' && property.name === 'create')
+  const globals = properties.find(property => property.kind === 'property' && property.name === 'globals')
+  if (create?.kind !== 'property' || create.value.kind !== 'string' || globals?.kind !== 'property' || globals.value.kind !== 'object') {
+    return refused(path, "the binding's first argument must be { create: '<the sdk's create export>', globals: { … } }")
+  }
+  const options = each(globals.value.properties.map(property => globalOf(path, property)))
+  return options.kind === 'read' ? read({ create: create.value.value, globals: options.value }) : options
 }
 
 const bindCallOf = (statements: readonly SyntaxStatement[]): SyntaxExpression | null => {
@@ -111,12 +140,14 @@ export const compiledBindingOf = (tree: Tree, path: string): Step<CompiledBindin
   if (reference === undefined || define === undefined || extra.length > 0) {
     return refused(path, 'bind takes the sdk reference and the operations')
   }
-  const create = createOf(path, reference)
-  if (create.kind === 'refused') return create
+  const sdk = sdkReferenceOf(path, reference)
+  if (sdk.kind === 'refused') return sdk
   const [op] = define.kind === 'arrow' ? define.parameters : []
   if (define.kind !== 'arrow' || define.parameters.length !== 1 || op?.kind !== 'parameter' || define.body.kind !== 'array') {
     return refused(path, "bind's operations must be an arrow of one parameter returning an array")
   }
   const operations = each(define.body.elements.map(element => operationOf(path, op.name, element)))
-  return operations.kind === 'read' ? read({ create: create.value, operations: operations.value }) : operations
+  return operations.kind === 'read'
+    ? read({ create: sdk.value.create, globals: sdk.value.globals, operations: operations.value })
+    : operations
 }

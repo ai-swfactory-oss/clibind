@@ -3,7 +3,7 @@ import type { Tree } from '@ai-swfactory-oss/files'
 import { compile } from './compile'
 import type { CompileResult } from './compile-step'
 
-export type { Binding, BoundOperation, FieldOf, Op, Operation, SdkReference } from './binding'
+export type { Binding, BoundOperation, FieldOf, GlobalOptions, Op, Operation, SdkReference } from './binding'
 export { bind } from './binding'
 export type { CompileDiagnostic, CompileResult } from './compile-step'
 export type { ExitRow, FailureCategory, Outcome } from './exits'
@@ -12,6 +12,7 @@ export type {
   AcceptedModel,
   ArgValue,
   BindingModel,
+  GlobalOption,
   InputArg,
   ModelIssue,
   OptionArg,
