@@ -253,7 +253,7 @@ export const renderModule = (description: ModuleDescription): string => {
   if (description.header !== undefined) {
     sections.push(headerText(description.header))
   }
-  const groups = (description.imports ?? []).filter(group => group.length > 0)
+  const groups = description.imports.filter(group => group.length > 0)
   if (groups.length > 0) {
     sections.push(groups.map(groupText).join('\n\n'))
   }

@@ -11,7 +11,7 @@ ImportDeclaration: interface ImportDeclaration { readonly from: string; readonly
 ImportGroup: type ImportGroup = readonly ImportDeclaration[];
 ImportSpecifier: interface ImportSpecifier { readonly name: string; readonly alias?: string; readonly typeOnly?: boolean; }
 Layout: type Layout = 'inline' | 'multi-line';
-ModuleDescription: interface ModuleDescription { readonly header?: string; readonly imports?: readonly ImportGroup[]; readonly declarations?: readonly Declaration[]; }
+ModuleDescription: interface ModuleDescription { readonly header?: string; readonly imports: readonly ImportGroup[]; readonly declarations?: readonly Declaration[]; }
 Parameter: interface Parameter { readonly name: string; readonly type?: TypeReference; }
 RecordEntry: interface RecordEntry { readonly key: string; readonly value: Expression; }
 RecordExpression: interface RecordExpression { readonly kind: 'record'; readonly layout: Layout; readonly entries: readonly RecordEntry[]; }

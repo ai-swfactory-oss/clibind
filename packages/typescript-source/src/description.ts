@@ -114,6 +114,6 @@ export type ImportGroup = readonly ImportDeclaration[]
 
 export interface ModuleDescription {
   readonly header?: string
-  readonly imports?: readonly ImportGroup[]
+  readonly imports: readonly ImportGroup[]
   readonly declarations?: readonly Declaration[]
 }
