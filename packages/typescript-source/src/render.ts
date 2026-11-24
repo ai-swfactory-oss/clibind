@@ -1,9 +1,13 @@
 import type {
+  ClassDeclaration,
+  ClassMember,
   DataValue,
   Declaration,
   Expression,
   ImportDeclaration,
+  ImportGroup,
   ImportSpecifier,
+  Layout,
   ModuleDescription,
   Parameter,
   Statement,
@@ -60,6 +64,26 @@ const block = (open: string, entries: readonly string[], close: string, depth: n
     ? `${open}${close}`
     : `${open}\n${entries.map(entry => `${pad(depth + 1)}${entry},\n`).join('')}${pad(depth)}${close}`
 
+const recordBraces = { open: '{', close: '}', padding: ' ' }
+
+const arrayBrackets = { open: '[', close: ']', padding: '' }
+
+const laidOut = (
+  layout: Layout,
+  delimiters: { readonly open: string; readonly close: string; readonly padding: string },
+  entries: readonly string[],
+  depth: number,
+): string => {
+  if (layout === 'multi-line') {
+    return block(delimiters.open, entries, delimiters.close, depth)
+  }
+  return entries.length === 0
+    ? `${delimiters.open}${delimiters.close}`
+    : `${delimiters.open}${delimiters.padding}${entries.join(', ')}${delimiters.padding}${delimiters.close}`
+}
+
+const entryDepth = (layout: Layout, depth: number): number => (layout === 'multi-line' ? depth + 1 : depth)
+
 const dataLiteral = (value: DataValue, depth: number): string => {
   if (value === null) {
     return 'null'
@@ -102,11 +126,14 @@ const parameterList = (parameters: readonly Parameter[]): string =>
 const isStatementList = (body: Expression | readonly Statement[]): body is readonly Statement[] => Array.isArray(body)
 
 const startsWithBrace = (expression: Expression): boolean =>
-  expression.kind === 'data' && typeof expression.value === 'object' && expression.value !== null && !isDataList(expression.value)
+  expression.kind === 'record' ||
+  (expression.kind === 'data' && typeof expression.value === 'object' && expression.value !== null && !isDataList(expression.value))
 
 const operand = (expression: Expression, depth: number): string => {
   const text = expressionText(expression, depth)
-  return expression.kind === 'identifier' || expression.kind === 'member' || expression.kind === 'call' ? text : `(${text})`
+  return expression.kind === 'identifier' || expression.kind === 'member' || expression.kind === 'call' || expression.kind === 'this'
+    ? text
+    : `(${text})`
 }
 
 const arrowBody = (body: Expression | readonly Statement[], depth: number): string => {
@@ -131,6 +158,24 @@ const expressionText = (expression: Expression, depth: number): string => {
       return `await ${operand(expression.expression, depth)}`
     case 'arrow':
       return `${expression.async === true ? 'async ' : ''}${parameterList(expression.parameters)}${annotation(expression.returnType)} => ${arrowBody(expression.body, depth)}`
+    case 'record':
+      return laidOut(
+        expression.layout,
+        recordBraces,
+        expression.entries.map(entry => `${propertyKey(entry.key)}: ${expressionText(entry.value, entryDepth(expression.layout, depth))}`),
+        depth,
+      )
+    case 'array':
+      return laidOut(
+        expression.layout,
+        arrayBrackets,
+        expression.elements.map(element => expressionText(element, entryDepth(expression.layout, depth))),
+        depth,
+      )
+    case 'regexp':
+      return `/${expression.pattern}/${expression.flags}`
+    case 'this':
+      return 'this'
   }
 }
 
@@ -161,12 +206,25 @@ const statementBlock = (statements: readonly Statement[], depth: number): string
 
 const exportPrefix = (exported: boolean | undefined): string => (exported === true ? 'export ' : '')
 
+const memberText = (member: ClassMember): string =>
+  `${pad(1)}${member.readonly ? 'readonly ' : ''}${propertyKey(member.name)} = ${expressionText(member.value, 1)}\n`
+
+const classText = (declaration: ClassDeclaration): string => {
+  const heritage = declaration.extends === null ? '' : ` extends ${operand(declaration.extends, 0)}`
+  const body = declaration.members.length === 0 ? '{}' : `{\n${declaration.members.map(memberText).join('')}}`
+  return `${exportPrefix(declaration.exported)}class ${declaration.name}${heritage} ${body}`
+}
+
 const declarationText = (declaration: Declaration): string => {
   switch (declaration.kind) {
     case 'const':
       return `${exportPrefix(declaration.exported)}${constText(declaration.name, declaration.type, declaration.value, 0)}`
     case 'function':
       return `${exportPrefix(declaration.exported)}${declaration.async === true ? 'async ' : ''}function ${declaration.name}${parameterList(declaration.parameters)}${annotation(declaration.returnType)} ${statementBlock(declaration.body, 0)}`
+    case 'class':
+      return classText(declaration)
+    case 'expression':
+      return statementText(declaration, 0)
   }
 }
 
@@ -182,6 +240,8 @@ const importText = (declaration: ImportDeclaration): string => {
   return `import ${wholeTypeOnly ? 'type ' : ''}{ ${names} } from ${stringLiteral(declaration.from)}`
 }
 
+const groupText = (group: ImportGroup): string => group.map(importText).join('\n')
+
 const headerText = (header: string): string =>
   header
     .split('\n')
@@ -193,9 +253,9 @@ export const renderModule = (description: ModuleDescription): string => {
   if (description.header !== undefined) {
     sections.push(headerText(description.header))
   }
-  const imports = description.imports ?? []
-  if (imports.length > 0) {
-    sections.push(imports.map(importText).join('\n'))
+  const groups = (description.imports ?? []).filter(group => group.length > 0)
+  if (groups.length > 0) {
+    sections.push(groups.map(groupText).join('\n\n'))
   }
   for (const declaration of description.declarations ?? []) {
     sections.push(declarationText(declaration))

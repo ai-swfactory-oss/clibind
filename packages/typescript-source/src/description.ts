@@ -10,6 +10,35 @@ export interface Parameter {
   readonly type?: TypeReference
 }
 
+export type Layout = 'inline' | 'multi-line'
+
+export interface RecordEntry {
+  readonly key: string
+  readonly value: Expression
+}
+
+export interface RecordExpression {
+  readonly kind: 'record'
+  readonly layout: Layout
+  readonly entries: readonly RecordEntry[]
+}
+
+export interface ArrayExpression {
+  readonly kind: 'array'
+  readonly layout: Layout
+  readonly elements: readonly Expression[]
+}
+
+export interface RegExpExpression {
+  readonly kind: 'regexp'
+  readonly pattern: string
+  readonly flags: string
+}
+
+export interface ThisExpression {
+  readonly kind: 'this'
+}
+
 export type Expression =
   | { readonly kind: 'data'; readonly value: DataValue }
   | { readonly kind: 'identifier'; readonly name: string }
@@ -23,6 +52,10 @@ export type Expression =
       readonly returnType?: TypeReference
       readonly body: Expression | readonly Statement[]
     }
+  | RecordExpression
+  | ArrayExpression
+  | RegExpExpression
+  | ThisExpression
 
 export interface ConstDeclaration {
   readonly kind: 'const'
@@ -42,12 +75,28 @@ export interface FunctionDeclaration {
   readonly body: readonly Statement[]
 }
 
-export type Statement =
-  | { readonly kind: 'return'; readonly value?: Expression }
-  | { readonly kind: 'expression'; readonly expression: Expression }
-  | ConstDeclaration
+export interface ClassMember {
+  readonly name: string
+  readonly readonly: boolean
+  readonly value: Expression
+}
 
-export type Declaration = ConstDeclaration | FunctionDeclaration
+export interface ClassDeclaration {
+  readonly kind: 'class'
+  readonly name: string
+  readonly exported: boolean
+  readonly extends: Expression | null
+  readonly members: readonly ClassMember[]
+}
+
+export interface ExpressionStatement {
+  readonly kind: 'expression'
+  readonly expression: Expression
+}
+
+export type Statement = { readonly kind: 'return'; readonly value?: Expression } | ExpressionStatement | ConstDeclaration
+
+export type Declaration = ConstDeclaration | FunctionDeclaration | ClassDeclaration | ExpressionStatement
 
 export interface ImportSpecifier {
   readonly name: string
@@ -61,8 +110,10 @@ export interface ImportDeclaration {
   readonly names: readonly ImportSpecifier[]
 }
 
+export type ImportGroup = readonly ImportDeclaration[]
+
 export interface ModuleDescription {
   readonly header?: string
-  readonly imports?: readonly ImportDeclaration[]
+  readonly imports?: readonly ImportGroup[]
   readonly declarations?: readonly Declaration[]
 }

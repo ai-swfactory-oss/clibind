@@ -1,12 +1,22 @@
+ArrayExpression: interface ArrayExpression { readonly kind: 'array'; readonly layout: Layout; readonly elements: readonly Expression[]; }
+ClassDeclaration: interface ClassDeclaration { readonly kind: 'class'; readonly name: string; readonly exported: boolean; readonly extends: Expression | null; readonly members: readonly ClassMember[]; }
+ClassMember: interface ClassMember { readonly name: string; readonly readonly: boolean; readonly value: Expression; }
 ConstDeclaration: interface ConstDeclaration { readonly kind: 'const'; readonly name: string; readonly exported?: boolean; readonly type?: TypeReference; readonly value: Expression; }
 DataValue: type DataValue = string | number | boolean | null | readonly DataValue[] | { readonly [key: string]: DataValue; };
-Declaration: type Declaration = ConstDeclaration | FunctionDeclaration;
-Expression: type Expression = { readonly kind: 'data'; readonly value: DataValue; } | { readonly kind: 'identifier'; readonly name: string; } | { readonly kind: 'member'; readonly object: Expression; readonly property: string; } | { readonly kind: 'call'; readonly callee: Expression; readonly arguments: readonly Expression[]; } | { readonly kind: 'await'; readonly expression: Expression; } | { readonly kind: 'arrow'; readonly async?: boolean; readonly parameters: readonly Parameter[]; readonly returnType?: TypeReference; readonly body: Expression | readonly Statement[]; };
+Declaration: type Declaration = ConstDeclaration | FunctionDeclaration | ClassDeclaration | ExpressionStatement;
+Expression: type Expression = { readonly kind: 'data'; readonly value: DataValue; } | { readonly kind: 'identifier'; readonly name: string; } | { readonly kind: 'member'; readonly object: Expression; readonly property: string; } | { readonly kind: 'call'; readonly callee: Expression; readonly arguments: readonly Expression[]; } | { readonly kind: 'await'; readonly expression: Expression; } | { readonly kind: 'arrow'; readonly async?: boolean; readonly parameters: readonly Parameter[]; readonly returnType?: TypeReference; readonly body: Expression | readonly Statement[]; } | RecordExpression | ArrayExpression | RegExpExpression | ThisExpression;
+ExpressionStatement: interface ExpressionStatement { readonly kind: 'expression'; readonly expression: Expression; }
 FunctionDeclaration: interface FunctionDeclaration { readonly kind: 'function'; readonly name: string; readonly exported?: boolean; readonly async?: boolean; readonly parameters: readonly Parameter[]; readonly returnType?: TypeReference; readonly body: readonly Statement[]; }
 ImportDeclaration: interface ImportDeclaration { readonly from: string; readonly typeOnly?: boolean; readonly names: readonly ImportSpecifier[]; }
+ImportGroup: type ImportGroup = readonly ImportDeclaration[];
 ImportSpecifier: interface ImportSpecifier { readonly name: string; readonly alias?: string; readonly typeOnly?: boolean; }
-ModuleDescription: interface ModuleDescription { readonly header?: string; readonly imports?: readonly ImportDeclaration[]; readonly declarations?: readonly Declaration[]; }
+Layout: type Layout = 'inline' | 'multi-line';
+ModuleDescription: interface ModuleDescription { readonly header?: string; readonly imports?: readonly ImportGroup[]; readonly declarations?: readonly Declaration[]; }
 Parameter: interface Parameter { readonly name: string; readonly type?: TypeReference; }
-Statement: type Statement = { readonly kind: 'return'; readonly value?: Expression; } | { readonly kind: 'expression'; readonly expression: Expression; } | ConstDeclaration;
+RecordEntry: interface RecordEntry { readonly key: string; readonly value: Expression; }
+RecordExpression: interface RecordExpression { readonly kind: 'record'; readonly layout: Layout; readonly entries: readonly RecordEntry[]; }
+RegExpExpression: interface RegExpExpression { readonly kind: 'regexp'; readonly pattern: string; readonly flags: string; }
+Statement: type Statement = { readonly kind: 'return'; readonly value?: Expression; } | ExpressionStatement | ConstDeclaration;
+ThisExpression: interface ThisExpression { readonly kind: 'this'; }
 TypeReference: interface TypeReference { readonly name: string; readonly arguments?: readonly TypeReference[]; }
 renderTypeScriptSource: const renderTypeScriptSource: (description: ModuleDescription) => string
