@@ -1,7 +1,6 @@
 {
   "name": "@ai-swfactory-oss/clibind",
   "description": "The clibind command line: a shallow wrapper whose every command is one operation of @ai-swfactory-oss/clibind-sdk.",
-  "version": "0.0.0",
   "type": "module",
   "license": "MIT",
   "repository": {
@@ -21,8 +20,8 @@
     "!dist/package.json"
   ],
   "dependencies": {
-    "@ai-swfactory-oss/clibind-sdk": "workspace:^",
-    "@ai-swfactory/seams-node": "^57.0.0",
+    "@ai-swfactory-oss/clibind-sdk": "workspace:*",
+    "@ai-swfactory-oss/terminal": "^1.0.0",
     "commander": "^14.0.3"
   },
   "devDependencies": {

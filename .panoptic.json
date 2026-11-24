@@ -4,6 +4,7 @@
   "guard": {},
   "packages": {
     "@ai-swfactory-oss/clibind": { "kind": "cli" },
-    "@ai-swfactory-oss/clibind-sdk": { "kind": "sdk" }
+    "@ai-swfactory-oss/clibind-sdk": { "kind": "sdk" },
+    "@ai-swfactory-oss/typescript-source": { "kind": "sdk" }
   }
 }

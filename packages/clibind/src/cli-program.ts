@@ -1,16 +1,17 @@
 import type { Clibind } from '@ai-swfactory-oss/clibind-sdk'
+import type { Terminal } from '@ai-swfactory-oss/terminal'
 import { Command } from 'commander'
 
 export interface CliDependencies {
   readonly clibind: Clibind
-  readonly write: (text: string) => void
+  readonly terminal: Terminal
 }
 
-export const createProgram = ({ clibind, write }: CliDependencies): Command =>
+export const createProgram = ({ clibind, terminal }: CliDependencies): Command =>
   new Command('clibind').description('Bind a CLI to a TypeScript SDK and compile it.').addCommand(
-    new Command('compile').description('Compile the binding and print the paths of the files it produces.').action(() => {
+    new Command('compile').description('Compile the binding and print the paths of the files it produces.').action(async () => {
       for (const file of clibind.compile().files) {
-        write(`${file.path}\n`)
+        await terminal.write('stdout', `${file.path}\n`)
       }
     }),
   )

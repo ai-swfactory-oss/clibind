@@ -1,4 +1,4 @@
-# DO NOT EDIT — generated from src/domain/blueprints/guard-presence-check.ts; run `claude-factory work commit --message "<your-message>"` to refresh
+# DO NOT EDIT — generated from src/domain/blueprints/guard-presence-check.ts; run `claude-factory work commit --message "<your-message>" --dod-bullet-file <path>` to refresh
 name: Guard presence check
 
 on:
@@ -73,7 +73,7 @@ jobs:
               if [ "${GITHUB_EVENT_NAME:-}" = "push" ]; then
                 echo "::error::Report this failed fetch as an incident. The next landing through \`claude-factory work finish \"<issue>\"\` checks main again."
               else
-                echo "::error::Report this failed fetch as an incident. The next push through \`claude-factory work commit --message \"<your-message>\"\` checks the pull request again."
+                echo "::error::Report this failed fetch as an incident. The next push through \`claude-factory work commit --message \"<your-message>\" --dod-bullet-file <path>\` checks the pull request again."
               fi
               exit 1
             fi
@@ -121,7 +121,7 @@ jobs:
             host_version="$(printf '%s' "$note" | jq -r '.host | objects | .version | strings' 2>/dev/null || true)"
             if [ "$host_name" != "@ai-swfactory/claude-factory" ] || ! [[ "$host_version" =~ $strict_semver ]]; then
               echo "::error::the receipt note of $(git rev-parse HEAD) lacks its signer: it carries the host field, so a guard that records the signing @ai-swfactory/claude-factory release wrote it, but the field names no strict semver release of @ai-swfactory/claude-factory, so no verifier can be chosen for it."
-              echo "::error::Run \`claude-factory work commit --message \"<your-message>\"\` locally with a @ai-swfactory/claude-factory that names itself as the signer; it signs the receipt again and pushes it alongside the commit."
+              echo "::error::Run \`claude-factory work commit --message \"<your-message>\" --dod-bullet-file <path>\` locally with a @ai-swfactory/claude-factory that names itself as the signer; it signs the receipt again and pushes it alongside the commit."
               exit 1
             fi
             version="$host_version"
@@ -142,6 +142,6 @@ jobs:
           if [ "${GITHUB_EVENT_NAME:-}" = "push" ]; then
             echo "::error::This commit is on main, so it reached main outside \`claude-factory work finish \"<issue>\"\`. That is an incident: report it. No command repairs a landed commit; the next landing through \`claude-factory work finish \"<issue>\"\` restores a receipted head."
           else
-            echo "::error::CI verifies receipts; it does not produce them. Run \`claude-factory work commit --message \"<your-message>\"\` locally — it signs the receipt and pushes it alongside the commit."
+            echo "::error::CI verifies receipts; it does not produce them. Run \`claude-factory work commit --message \"<your-message>\" --dod-bullet-file <path>\` locally — it signs the receipt and pushes it alongside the commit."
           fi
           exit 1

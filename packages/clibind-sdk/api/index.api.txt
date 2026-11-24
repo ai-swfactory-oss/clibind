@@ -1,0 +1,4 @@
+Clibind: interface Clibind { readonly compile: () => CompileResult; }
+CompileResult: interface CompileResult { readonly files: readonly GeneratedFile[]; }
+GeneratedFile: interface GeneratedFile { readonly path: string; readonly contents: string; }
+createClibind: const createClibind: () => Clibind

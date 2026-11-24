@@ -1,7 +1,6 @@
 {
   "name": "clibind-monorepo",
   "private": true,
-  "version": "0.0.0",
   "type": "module",
   "license": "MIT",
   "description": "clibind workspace: the clibind compiler (SDK) and its command line.",
