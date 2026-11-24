@@ -13,7 +13,12 @@ interface CallsPorts {
 
 interface CallsSdk {
   readonly calls: {
-    readonly list: (data: { readonly since: string }) => Promise<readonly Call[]>
+    readonly list: (data: {
+      readonly account: string
+      readonly since: string
+      readonly limit: number
+      readonly missed: boolean
+    }) => Promise<readonly Call[]>
     readonly get: (data: { readonly id: string }) => Promise<Call>
   }
   readonly numbers: {

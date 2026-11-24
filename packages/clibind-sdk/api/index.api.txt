@@ -1,9 +1,45 @@
+AcceptedModel: interface AcceptedModel { readonly success: true; readonly model: BindingModel<string>; }
+ArgValue: type ArgValue = string | number | boolean;
 Binding: interface Binding<Api> { readonly operations: readonly BoundOperation<Api>[]; }
-BoundOperation: interface BoundOperation<Api> { readonly select: (api: Api) => Operation; readonly command: readonly string[]; }
+BindingModel: interface BindingModel<F extends string> { readonly command: readonly string[]; readonly input: readonly InputArg<F>[]; readonly output: OutputModel; }
+BoundOperation: interface BoundOperation<Api> { readonly select: (api: Api) => Operation; readonly model: BindingModel<string>; }
+CliOutput: interface CliOutput { readonly stdout: string; readonly exitCode: number; }
 Clibind: interface Clibind { readonly compile: () => CompileResult; }
 CompileResult: interface CompileResult { readonly files: readonly GeneratedFile[]; }
+EXIT_TABLE: const EXIT_TABLE: readonly ExitRow[]
+ExitCodeResult: interface ExitCodeResult { readonly parser: 'exit-code'; readonly value: boolean; }
+ExitRow: interface ExitRow { readonly code: number; readonly outcome: Outcome; }
+FAILURE_CATEGORIES: const FAILURE_CATEGORIES: readonly FailureCategory[]
+FailureCategory: type FailureCategory = 'failed' | 'unreadable-output';
+FieldOf: type FieldOf<O> = O extends (data: infer D) => unknown ? Extract<keyof D, string> : string;
 GeneratedFile: interface GeneratedFile { readonly path: string; readonly contents: string; }
-Op: type Op<Api> = (select: (api: Api) => Operation, command: readonly string[]) => BoundOperation<Api>;
+InputArg: type InputArg<F extends string> = PositionalArg<F> | OptionArg<F> | SwitchArg<F>;
+JsonResult: interface JsonResult { readonly parser: 'json'; readonly value: unknown; }
+LinesResult: interface LinesResult { readonly parser: 'lines'; readonly value: readonly string[]; }
+ModelIssue: interface ModelIssue { readonly path: readonly string[]; readonly message: string; }
+Op: type Op<Api> = <O extends Operation>(select: (api: Api) => O, model: BindingModel<FieldOf<O>>) => BoundOperation<Api>;
 Operation: type Operation = (data: never) => unknown;
+OperationResult: type OperationResult = LinesResult | JsonResult | PorcelainResult | ExitCodeResult;
+OptionArg: interface OptionArg<F extends string> { readonly kind: 'option'; readonly flag: string; readonly field: F; readonly type: ScalarType; }
+Outcome: type Outcome = 'success' | FailureCategory;
+OutputFailed: interface OutputFailed { readonly success: false; readonly category: FailureCategory; readonly message: string; }
+OutputModel: interface OutputModel { readonly parser: Parser; }
+OutputRead: interface OutputRead { readonly success: true; readonly result: OperationResult; }
+PARSERS: const PARSERS: readonly [ Parser, ...Parser[] ]
+Parser: type Parser = 'lines' | 'json' | 'porcelain-v2' | 'exit-code';
+PorcelainChanged: interface PorcelainChanged { readonly kind: 'changed' | 'unmerged'; readonly xy: string; readonly path: string; }
+PorcelainEntry: type PorcelainEntry = PorcelainHeader | PorcelainChanged | PorcelainRenamed | PorcelainPath;
+PorcelainHeader: interface PorcelainHeader { readonly kind: 'header'; readonly key: string; readonly value: string; }
+PorcelainPath: interface PorcelainPath { readonly kind: 'untracked' | 'ignored'; readonly path: string; }
+PorcelainRenamed: interface PorcelainRenamed { readonly kind: 'renamed'; readonly xy: string; readonly path: string; readonly origPath: string; }
+PorcelainResult: interface PorcelainResult { readonly parser: 'porcelain-v2'; readonly value: readonly PorcelainEntry[]; }
+PositionalArg: interface PositionalArg<F extends string> { readonly kind: 'positional'; readonly field: F; readonly type: ScalarType; }
+RejectedModel: interface RejectedModel { readonly success: false; readonly issues: readonly ModelIssue[]; }
+ScalarType: type ScalarType = 'string' | 'number';
+SwitchArg: interface SwitchArg<F extends string> { readonly kind: 'switch'; readonly flag: string; readonly field: F; }
+argvOf: const argvOf: <F extends string>(model: BindingModel<F>, input: Readonly<Record<F, ArgValue>>) => readonly string[]
 bind: const bind: <Api>(define: (op: Op<Api>) => readonly BoundOperation<Api>[]) => Binding<Api>
+bindingModelJsonSchema: const bindingModelJsonSchema: () => z.core.JSONSchema.JSONSchema
 createClibind: const createClibind: () => Clibind
+parseBindingModel: const parseBindingModel: (data: unknown) => AcceptedModel | RejectedModel
+readOutput: const readOutput: (parser: Parser, output: CliOutput) => OutputRead | OutputFailed
