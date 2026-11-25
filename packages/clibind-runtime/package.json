@@ -1,0 +1,38 @@
+{
+  "name": "@ai-swfactory-oss/clibind-runtime",
+  "description": "Runs every CLI clibind generates: createClibindRuntime takes the terminal port, and its main takes the compiled binding, argv, env and createSdk, runs the bound SDK operation and resolves to the exit code.",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ai-swfactory-oss/clibind.git",
+    "directory": "packages/clibind-runtime"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com",
+    "tag": "latest"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "src",
+    "!dist/**/*.tgz"
+  ],
+  "dependencies": {
+    "@ai-swfactory-oss/clibind-sdk": "workspace:*",
+    "@ai-swfactory-oss/terminal": "^1.0.0"
+  },
+  "devDependencies": {
+    "@ai-swfactory-oss/clock": "^2.1.1",
+    "@types/node": "^24.0.0"
+  }
+}

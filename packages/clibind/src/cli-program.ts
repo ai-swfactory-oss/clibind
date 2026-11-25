@@ -11,6 +11,8 @@ export interface CliDependencies {
 
 const MANIFEST = 'package.json'
 
+const RUNTIME = { module: '@ai-swfactory-oss/clibind-runtime' }
+
 const exitCodeOf = (outcome: Outcome): number => {
   const row = EXIT_TABLE.find(candidate => candidate.outcome === outcome)
   if (row === undefined) throw new Error(`the exit table has no row for the outcome '${outcome}'`)
@@ -37,7 +39,7 @@ const compileCommand = async (dependencies: CliDependencies, bindingPath: string
     await terminal.write('stderr', `clibind: the binding and sdk could not be read: ${snapshot.kind}\n`)
     return 'failed'
   }
-  const result = clibind.compile(snapshot.tree, bindingPath, sdkPath)
+  const result = clibind.compile(snapshot.tree, bindingPath, sdkPath, RUNTIME)
   if (result.kind === 'refused') {
     for (const diagnostic of result.diagnostics) await terminal.write('stderr', `${diagnostic.path}: ${diagnostic.message}\n`)
     return 'failed'

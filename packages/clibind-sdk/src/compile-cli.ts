@@ -7,7 +7,15 @@ export const CLI_PATH = 'cli.ts'
 
 export const BINDING_JSON_PATH = 'cli.binding.json'
 
-const RUNTIME_MODULE = '@ai-swfactory-oss/clibind-runtime'
+const RUNTIME_ENTRY = 'createClibindRuntime'
+
+const TERMINAL_ADAPTER_MODULE = '@ai-swfactory-oss/terminal/node'
+
+const TERMINAL_ADAPTER = 'createNodeTerminal'
+
+export interface RuntimeReference {
+  readonly module: string
+}
 
 export interface NodeAdapter {
   readonly port: string
@@ -65,16 +73,38 @@ const mainArguments = (create: string, adapters: readonly NodeAdapter[]): Expres
     { key: 'binding', value: identifier('binding') },
     { key: 'argv', value: call(member(processMember('argv'), 'slice'), [{ kind: 'data', value: 2 }]) },
     { key: 'env', value: processMember('env') },
-    { key: 'stdout', value: processMember('stdout') },
-    { key: 'stderr', value: processMember('stderr') },
     { key: 'createSdk', value: createSdk(create, adapters) },
   ],
 })
 
-export const cliSource = (packageName: string, create: string, adapters: readonly NodeAdapter[]): string =>
+const runtime = (): Expression =>
+  call(identifier(RUNTIME_ENTRY), [
+    {
+      kind: 'record',
+      layout: 'inline',
+      entries: [
+        {
+          key: 'ports',
+          value: { kind: 'record', layout: 'inline', entries: [{ key: 'terminal', value: call(identifier(TERMINAL_ADAPTER), []) }] },
+        },
+      ],
+    },
+  ])
+
+export const cliSource = (
+  runtimeReference: RuntimeReference,
+  packageName: string,
+  create: string,
+  adapters: readonly NodeAdapter[],
+): string =>
   renderTypeScriptSource({
     imports: [
-      [namedImport(RUNTIME_MODULE, ['main']), ...adapterImports(adapters), namedImport(packageName, [create])],
+      [
+        namedImport(runtimeReference.module, [RUNTIME_ENTRY]),
+        ...adapterImports(adapters),
+        namedImport(TERMINAL_ADAPTER_MODULE, [TERMINAL_ADAPTER]),
+        namedImport(packageName, [create]),
+      ],
       [
         {
           from: `./${BINDING_JSON_PATH}`,
@@ -90,7 +120,7 @@ export const cliSource = (packageName: string, create: string, adapters: readonl
         expression: {
           kind: 'assign',
           target: processMember('exitCode'),
-          value: { kind: 'await', expression: call(identifier('main'), [mainArguments(create, adapters)]) },
+          value: { kind: 'await', expression: call(member(runtime(), 'main'), [mainArguments(create, adapters)]) },
         },
       },
     ],

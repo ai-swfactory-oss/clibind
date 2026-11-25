@@ -31,6 +31,22 @@ importers:
         specifier: ^24.0.0
         version: 24.19.2
 
+  packages/clibind-runtime:
+    dependencies:
+      '@ai-swfactory-oss/clibind-sdk':
+        specifier: workspace:*
+        version: link:../clibind-sdk
+      '@ai-swfactory-oss/terminal':
+        specifier: ^1.0.0
+        version: 1.0.0
+    devDependencies:
+      '@ai-swfactory-oss/clock':
+        specifier: ^2.1.1
+        version: 2.1.1
+      '@types/node':
+        specifier: ^24.0.0
+        version: 24.19.2
+
   packages/clibind-sdk:
     dependencies:
       '@ai-swfactory-oss/files':
@@ -60,6 +76,9 @@ packages:
 
   '@ai-swfactory-oss/bytes@1.0.2':
     resolution: {integrity: sha512-mh8WRYff0cke4blSxlodfd85OBva2nrsVq6oPGyko/boEzchg75QHAO8E+3cAlaI3Owht1TEGUyb1VCh1lI+GQ==, tarball: https://npm.pkg.github.com/download/@ai-swfactory-oss/bytes/1.0.2/1454f493fda299eff49e9d59572f936c7121b0b3}
+
+  '@ai-swfactory-oss/clock@2.1.1':
+    resolution: {integrity: sha512-VfsboMvfmrQCY9XeEiL0au8qTP1rFNbVAHYj0Nxpan9WN3w4PWQPSszIKRa7nbsCc3l8AauE24CKSB9mh7/eHw==, tarball: https://npm.pkg.github.com/download/@ai-swfactory-oss/clock/2.1.1/720bc0e39ccc317ee8480ff82c7c596abb6d55a0}
 
   '@ai-swfactory-oss/files@6.0.1':
     resolution: {integrity: sha512-lkEhd5DXZ9qEcvyB2s8qPoOI3wS/9PhpMi4/Z7udAqlmW6DO73UnQQ+B+QLzOo8jaHwfdA4m2ieyPcjS9Guwyg==, tarball: https://npm.pkg.github.com/download/@ai-swfactory-oss/files/6.0.1/7941df195ffd50690b5a4b4e483627cb55e65ae5}
@@ -91,6 +110,8 @@ packages:
 snapshots:
 
   '@ai-swfactory-oss/bytes@1.0.2': {}
+
+  '@ai-swfactory-oss/clock@2.1.1': {}
 
   '@ai-swfactory-oss/files@6.0.1':
     dependencies:

@@ -1,12 +1,12 @@
 import type { FileEntry, Tree } from '@ai-swfactory-oss/files'
 
 import { compiledBindingOf } from './compile-binding'
-import { BINDING_JSON_PATH, bindingJson, CLI_PATH, cliSource, type NodeAdapter } from './compile-cli'
+import { BINDING_JSON_PATH, bindingJson, CLI_PATH, cliSource, type NodeAdapter, type RuntimeReference } from './compile-cli'
 import { compiledSdkOf } from './compile-sdk'
 import { type CompileResult, each, read, refused, type Step } from './compile-step'
 
 const NODE_ADAPTERS: ReadonlyMap<string, NodeAdapter> = new Map([
-  ['clock', { port: 'clock', constructorName: 'createSystemClock', from: '@ai-swfactory-oss/clibind-runtime/node' }],
+  ['clock', { port: 'clock', constructorName: 'createStandardClock', from: '@ai-swfactory-oss/clock/standard' }],
 ])
 
 const encoder = new TextEncoder()
@@ -20,7 +20,7 @@ const adapterOf = (sdkPath: string, port: string): Step<NodeAdapter> => {
     : read(adapter)
 }
 
-export const compile = (tree: Tree, bindingPath: string, sdkPath: string): CompileResult => {
+export const compile = (tree: Tree, bindingPath: string, sdkPath: string, runtime: RuntimeReference): CompileResult => {
   const binding = compiledBindingOf(tree, bindingPath)
   if (binding.kind === 'refused') return binding
   const sdk = compiledSdkOf(tree, sdkPath, binding.value.create)
@@ -32,7 +32,7 @@ export const compile = (tree: Tree, bindingPath: string, sdkPath: string): Compi
     outputs: {
       entries: [
         output(BINDING_JSON_PATH, bindingJson(binding.value.globals, binding.value.operations)),
-        output(CLI_PATH, cliSource(sdk.value.packageName, sdk.value.create, adapters.value)),
+        output(CLI_PATH, cliSource(runtime, sdk.value.packageName, sdk.value.create, adapters.value)),
       ],
     },
   }

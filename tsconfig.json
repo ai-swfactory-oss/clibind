@@ -43,6 +43,9 @@
       "path": "./packages/clibind"
     },
     {
+      "path": "./packages/clibind-runtime"
+    },
+    {
       "path": "./packages/clibind-sdk"
     },
     {

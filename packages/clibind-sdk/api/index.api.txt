@@ -1,17 +1,19 @@
 AcceptedModel: interface AcceptedModel { readonly success: true; readonly model: BindingModel<string>; }
 ArgValue: type ArgValue = string | number | boolean;
 Binding: interface Binding<Api, Config> { readonly sdk: SdkReference<Config>; readonly operations: readonly BoundOperation<Api>[]; }
+BindingJson: interface BindingJson { readonly globals: readonly GlobalOption<string>[]; readonly operations: readonly OperationJson[]; }
+BindingJsonRead: type BindingJsonRead = { readonly success: true; readonly binding: BindingJson; } | RejectedModel;
 BindingModel: interface BindingModel<F extends string> { readonly command: readonly string[]; readonly input: readonly InputArg<F>[]; readonly output: OutputModel; }
 BoundOperation: interface BoundOperation<Api> { readonly select: (api: Api) => Operation; readonly model: BindingModel<string>; }
 CliOutput: interface CliOutput { readonly stdout: string; readonly exitCode: number; }
-Clibind: interface Clibind { readonly compile: (tree: Tree, bindingPath: string, sdkPath: string) => CompileResult; }
+Clibind: interface Clibind { readonly compile: (tree: Tree, bindingPath: string, sdkPath: string, runtime: RuntimeReference) => CompileResult; }
 CompileDiagnostic: interface CompileDiagnostic { readonly path: string; readonly message: string; }
 CompileResult: type CompileResult = { readonly kind: 'compiled'; readonly outputs: Tree; } | { readonly kind: 'refused'; readonly diagnostics: readonly CompileDiagnostic[]; };
 EXIT_TABLE: const EXIT_TABLE: readonly ExitRow[]
 ExitCodeResult: interface ExitCodeResult { readonly parser: 'exit-code'; readonly value: boolean; }
 ExitRow: interface ExitRow { readonly code: number; readonly outcome: Outcome; }
 FAILURE_CATEGORIES: const FAILURE_CATEGORIES: readonly FailureCategory[]
-FailureCategory: type FailureCategory = 'failed' | 'unreadable-output';
+FailureCategory: type FailureCategory = 'failed' | 'unreadable-output' | 'usage' | 'broken-pipe';
 FieldOf: type FieldOf<O> = O extends (data: infer D) => unknown ? Extract<keyof D, string> : string;
 GlobalOption: interface GlobalOption<F extends string> { readonly flag: string; readonly env: string; readonly field: F; readonly type: ScalarType; }
 GlobalOptions: type GlobalOptions<Config> = { readonly [F in keyof Config]-?: GlobalOption<Extract<F, string>>; };
@@ -21,6 +23,7 @@ LinesResult: interface LinesResult { readonly parser: 'lines'; readonly value: r
 ModelIssue: interface ModelIssue { readonly path: readonly string[]; readonly message: string; }
 Op: type Op<Api> = <O extends Operation>(select: (api: Api) => O, model: BindingModel<FieldOf<O>>) => BoundOperation<Api>;
 Operation: type Operation = (data: never) => unknown;
+OperationJson: interface OperationJson extends BindingModel<string> { readonly operation: readonly string[]; }
 OperationResult: type OperationResult = LinesResult | JsonResult | PorcelainResult | ExitCodeResult;
 OptionArg: interface OptionArg<F extends string> { readonly kind: 'option'; readonly flag: string; readonly field: F; readonly type: ScalarType; }
 Outcome: type Outcome = 'success' | FailureCategory;
@@ -37,6 +40,7 @@ PorcelainRenamed: interface PorcelainRenamed { readonly kind: 'renamed'; readonl
 PorcelainResult: interface PorcelainResult { readonly parser: 'porcelain-v2'; readonly value: readonly PorcelainEntry[]; }
 PositionalArg: interface PositionalArg<F extends string> { readonly kind: 'positional'; readonly field: F; readonly type: ScalarType; }
 RejectedModel: interface RejectedModel { readonly success: false; readonly issues: readonly ModelIssue[]; }
+RuntimeReference: interface RuntimeReference { readonly module: string; }
 ScalarType: type ScalarType = 'string' | 'number';
 SdkReference: interface SdkReference<Config> { readonly create: string; readonly globals: GlobalOptions<Config>; }
 SwitchArg: interface SwitchArg<F extends string> { readonly kind: 'switch'; readonly flag: string; readonly field: F; }
@@ -44,5 +48,6 @@ argvOf: const argvOf: <F extends string>(model: BindingModel<F>, input: Readonly
 bind: const bind: <Api, Config>(sdk: SdkReference<Config>, define: (op: Op<Api>) => readonly BoundOperation<Api>[]) => Binding<Api, Config>
 bindingModelJsonSchema: const bindingModelJsonSchema: () => z.core.JSONSchema.JSONSchema
 createClibind: const createClibind: () => Clibind
+parseBindingJson: const parseBindingJson: (data: unknown) => BindingJsonRead
 parseBindingModel: const parseBindingModel: (data: unknown) => AcceptedModel | RejectedModel
 readOutput: const readOutput: (parser: Parser, output: CliOutput) => OutputRead | OutputFailed

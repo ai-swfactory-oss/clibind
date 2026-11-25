@@ -126,4 +126,29 @@ export const parseGlobalOption = (data: unknown): GlobalOptionRead => {
   }
 }
 
+export interface OperationJson extends BindingModel<string> {
+  readonly operation: readonly string[]
+}
+
+export interface BindingJson {
+  readonly globals: readonly GlobalOption<string>[]
+  readonly operations: readonly OperationJson[]
+}
+
+export type BindingJsonRead = { readonly success: true; readonly binding: BindingJson } | RejectedModel
+
+const bindingJsonSchema = z.strictObject({
+  globals: z.array(globalOptionSchema),
+  operations: z.array(bindingModelSchema().extend({ operation: z.array(z.string().min(1)).min(1) })),
+})
+
+export const parseBindingJson = (data: unknown): BindingJsonRead => {
+  const result = bindingJsonSchema.safeParse(data)
+  if (result.success) return { success: true, binding: result.data }
+  return {
+    success: false,
+    issues: result.error.issues.map(issue => ({ path: issue.path.map(key => String(key)), message: issue.message })),
+  }
+}
+
 export const bindingModelJsonSchema = (): z.core.JSONSchema.JSONSchema => z.toJSONSchema(bindingModelSchema())

@@ -4,6 +4,8 @@ export const CALLS_BINDING_PATH = 'calls-cli/binding.ts'
 
 export const CALLS_SDK_PATH = 'calls-sdk/src/index.ts'
 
+export const CALLS_RUNTIME = { module: '@acme/cli-runtime' }
+
 const CALLS_SDK_MANIFEST_PATH = 'calls-sdk/package.json'
 
 const CALLS_SDK_MANIFEST = `${JSON.stringify({ name: '@acme/calls-sdk', type: 'module' }, null, 2)}\n`

@@ -1,13 +1,21 @@
 import { describe, expect, it } from 'vitest'
 
 import { createClibind } from '../src/index'
-import { CALLS_BINDING_PATH, CALLS_BINDING_SOURCE, CALLS_SDK_PATH, CALLS_SDK_SOURCE, callsTree } from './fixtures/calls-sources'
+import {
+  CALLS_BINDING_PATH,
+  CALLS_BINDING_SOURCE,
+  CALLS_RUNTIME,
+  CALLS_SDK_PATH,
+  CALLS_SDK_SOURCE,
+  callsTree,
+} from './fixtures/calls-sources'
 
 const compiledNaming = (create: string): unknown =>
   createClibind().compile(
     callsTree(CALLS_BINDING_SOURCE.replace("create: 'createCallsSdk'", `create: '${create}'`), CALLS_SDK_SOURCE),
     CALLS_BINDING_PATH,
     CALLS_SDK_PATH,
+    CALLS_RUNTIME,
   )
 
 describe('the compiler refuses a missing create export', () => {

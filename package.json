@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "license": "MIT",
-  "description": "clibind workspace: the clibind compiler (SDK) and its command line.",
+  "description": "clibind workspace: the clibind compiler (SDK), its command line, and the runtime every generated CLI runs on.",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ai-swfactory-oss/clibind.git"
