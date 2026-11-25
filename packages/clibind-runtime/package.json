@@ -20,6 +20,11 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
+    "./own-version": {
+      "source": "./src/own-version.ts",
+      "types": "./dist/own-version.d.ts",
+      "import": "./dist/own-version.js"
+    },
     "./package.json": "./package.json"
   },
   "files": [
@@ -29,6 +34,7 @@
   ],
   "dependencies": {
     "@ai-swfactory-oss/clibind-sdk": "workspace:*",
+    "@ai-swfactory-oss/files": "^6.0.1",
     "@ai-swfactory-oss/terminal": "^1.0.0"
   },
   "devDependencies": {

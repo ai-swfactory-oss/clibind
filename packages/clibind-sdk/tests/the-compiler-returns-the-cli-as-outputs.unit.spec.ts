@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { createClibind } from '../src/index'
 import { CALLS_CLI_TS } from './fixtures/calls-cli'
 import callsCliBinding from './fixtures/calls-cli.binding.json' with { type: 'json' }
+import callsCliOpenCli from './fixtures/calls-cli.opencli.json' with { type: 'json' }
 import {
   CALLS_BINDING_PATH,
   CALLS_BINDING_SOURCE,
@@ -26,6 +27,12 @@ describe('the compiler returns the cli as outputs', () => {
             path: 'cli.binding.json',
             kind: 'file',
             content: encoder.encode(`${JSON.stringify(callsCliBinding, null, 2)}\n`),
+            executable: false,
+          },
+          {
+            path: 'cli.opencli.json',
+            kind: 'file',
+            content: encoder.encode(`${JSON.stringify(callsCliOpenCli, null, 2)}\n`),
             executable: false,
           },
           { path: 'cli.ts', kind: 'file', content: encoder.encode(CALLS_CLI_TS), executable: false },

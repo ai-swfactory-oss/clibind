@@ -2,7 +2,8 @@ ClibindRuntime: interface ClibindRuntime { readonly main: (input: MainInput) => 
 ClibindRuntimeOptions: interface ClibindRuntimeOptions { readonly ports: ClibindRuntimePorts; }
 ClibindRuntimePorts: interface ClibindRuntimePorts { readonly terminal: Terminal; }
 Env: type Env = Readonly<Record<string, string | undefined>>;
-MainInput: interface MainInput { readonly binding: unknown; readonly argv: readonly string[]; readonly env: Env; readonly createSdk: (config: SdkConfig) => unknown; }
+MainInput: interface MainInput { readonly binding: unknown; readonly opencli: unknown; readonly version: OwnVersion; readonly argv: readonly string[]; readonly env: Env; readonly createSdk: (config: SdkConfig) => unknown; }
 OperationData: type OperationData = Readonly<Record<string, ArgValue>>;
+OwnVersion: type OwnVersion = { readonly kind: 'found'; readonly version: string; } | { readonly kind: 'no-version'; };
 SdkConfig: type SdkConfig = Readonly<Record<string, ArgValue>>;
 createClibindRuntime: const createClibindRuntime: (options: ClibindRuntimeOptions) => ClibindRuntime

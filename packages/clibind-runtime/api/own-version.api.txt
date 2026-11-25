@@ -1,0 +1,6 @@
+OwnVersion: type OwnVersion = { readonly kind: 'found'; readonly version: string; } | { readonly kind: 'no-version'; };
+OwnVersionReader: interface OwnVersionReader { readonly read: (request: OwnVersionRequest) => Promise<OwnVersion>; }
+OwnVersionReaderOptions: interface OwnVersionReaderOptions { readonly ports: OwnVersionReaderPorts; }
+OwnVersionReaderPorts: interface OwnVersionReaderPorts { readonly files: Files; }
+OwnVersionRequest: interface OwnVersionRequest { readonly packageName: string; readonly fromPath: string; }
+createOwnVersionReader: const createOwnVersionReader: (options: OwnVersionReaderOptions) => OwnVersionReader

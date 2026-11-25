@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest'
 
 import { createClibindRuntime } from '../src/index'
 import callsCliBinding from './fixtures/calls-cli.binding.json' with { type: 'json' }
+import { CALLS_OPENCLI, CALLS_VERSION } from './fixtures/calls-run'
 import { createCallsSdk, KNOWN_CALL } from './fixtures/calls-sdk'
 
 describe('main runs the compiled calls fixture binding', () => {
@@ -13,6 +14,8 @@ describe('main runs the compiled calls fixture binding', () => {
 
     const exitCode = await createClibindRuntime({ ports: { terminal } }).main({
       binding: callsCliBinding,
+      opencli: CALLS_OPENCLI,
+      version: CALLS_VERSION,
       argv: ['calls', 'get', KNOWN_CALL.id, '--account', 'acme'],
       env: {},
       createSdk: config => createCallsSdk(config, { ports: { clock } }),

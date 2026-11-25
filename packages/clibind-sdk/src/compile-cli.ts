@@ -7,11 +7,27 @@ export const CLI_PATH = 'cli.ts'
 
 export const BINDING_JSON_PATH = 'cli.binding.json'
 
+export const OPENCLI_JSON_PATH = 'cli.opencli.json'
+
 const RUNTIME_ENTRY = 'createClibindRuntime'
+
+const OWN_VERSION_SUBPATH = 'own-version'
+
+const OWN_VERSION_ENTRY = 'createOwnVersionReader'
 
 const TERMINAL_ADAPTER_MODULE = '@ai-swfactory-oss/terminal/node'
 
 const TERMINAL_ADAPTER = 'createNodeTerminal'
+
+const FILES_ADAPTER_MODULE = '@ai-swfactory-oss/files/node'
+
+const FILES_ADAPTER = 'createNodeFiles'
+
+const FILES_ROOT = '/'
+
+const URL_MODULE = 'node:url'
+
+const FILE_URL_TO_PATH = 'fileURLToPath'
 
 export interface RuntimeReference {
   readonly module: string
@@ -66,11 +82,56 @@ const createSdk = (create: string, adapters: readonly NodeAdapter[]): Expression
   ]),
 })
 
-const mainArguments = (create: string, adapters: readonly NodeAdapter[]): Expression => ({
+const inlineRecord = (entries: readonly { readonly key: string; readonly value: Expression }[]): Expression => ({
+  kind: 'record',
+  layout: 'inline',
+  entries,
+})
+
+const ownVersion = (cliPackageName: string): Expression => ({
+  kind: 'await',
+  expression: call(
+    member(
+      call(identifier(OWN_VERSION_ENTRY), [
+        inlineRecord([
+          {
+            key: 'ports',
+            value: inlineRecord([
+              {
+                key: 'files',
+                value: call(identifier(FILES_ADAPTER), [inlineRecord([{ key: 'root', value: { kind: 'data', value: FILES_ROOT } }])]),
+              },
+            ]),
+          },
+        ]),
+      ]),
+      'read',
+    ),
+    [
+      {
+        kind: 'record',
+        layout: 'multi-line',
+        entries: [
+          { key: 'packageName', value: { kind: 'data', value: cliPackageName } },
+          {
+            key: 'fromPath',
+            value: call(member(call(identifier(FILE_URL_TO_PATH), [member(member(identifier('import'), 'meta'), 'url')]), 'slice'), [
+              { kind: 'data', value: FILES_ROOT.length },
+            ]),
+          },
+        ],
+      },
+    ],
+  ),
+})
+
+const mainArguments = (cliPackageName: string, create: string, adapters: readonly NodeAdapter[]): Expression => ({
   kind: 'record',
   layout: 'multi-line',
   entries: [
     { key: 'binding', value: identifier('binding') },
+    { key: 'opencli', value: identifier('opencli') },
+    { key: 'version', value: ownVersion(cliPackageName) },
     { key: 'argv', value: call(member(processMember('argv'), 'slice'), [{ kind: 'data', value: 2 }]) },
     { key: 'env', value: processMember('env') },
     { key: 'createSdk', value: createSdk(create, adapters) },
@@ -91,8 +152,16 @@ const runtime = (): Expression =>
     },
   ])
 
+const jsonImport = (path: string, name: string): ImportDeclaration => ({
+  from: `./${path}`,
+  default: { kind: 'default', name },
+  names: [],
+  attributes: [{ key: 'type', value: 'json' }],
+})
+
 export const cliSource = (
   runtimeReference: RuntimeReference,
+  cliPackageName: string,
   packageName: string,
   create: string,
   adapters: readonly NodeAdapter[],
@@ -101,18 +170,14 @@ export const cliSource = (
     imports: [
       [
         namedImport(runtimeReference.module, [RUNTIME_ENTRY]),
+        namedImport(`${runtimeReference.module}/${OWN_VERSION_SUBPATH}`, [OWN_VERSION_ENTRY]),
         ...adapterImports(adapters),
+        namedImport(FILES_ADAPTER_MODULE, [FILES_ADAPTER]),
         namedImport(TERMINAL_ADAPTER_MODULE, [TERMINAL_ADAPTER]),
         namedImport(packageName, [create]),
+        namedImport(URL_MODULE, [FILE_URL_TO_PATH]),
       ],
-      [
-        {
-          from: `./${BINDING_JSON_PATH}`,
-          default: { kind: 'default', name: 'binding' },
-          names: [],
-          attributes: [{ key: 'type', value: 'json' }],
-        },
-      ],
+      [jsonImport(BINDING_JSON_PATH, 'binding'), jsonImport(OPENCLI_JSON_PATH, 'opencli')],
     ],
     declarations: [
       {
@@ -120,7 +185,7 @@ export const cliSource = (
         expression: {
           kind: 'assign',
           target: processMember('exitCode'),
-          value: { kind: 'await', expression: call(member(runtime(), 'main'), [mainArguments(create, adapters)]) },
+          value: { kind: 'await', expression: call(member(runtime(), 'main'), [mainArguments(cliPackageName, create, adapters)]) },
         },
       },
     ],

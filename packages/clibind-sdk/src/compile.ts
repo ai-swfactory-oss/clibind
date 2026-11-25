@@ -1,9 +1,19 @@
 import type { FileEntry, Tree } from '@ai-swfactory-oss/files'
 
 import { compiledBindingOf } from './compile-binding'
-import { BINDING_JSON_PATH, bindingJson, CLI_PATH, cliSource, type NodeAdapter, type RuntimeReference } from './compile-cli'
+import {
+  BINDING_JSON_PATH,
+  bindingJson,
+  CLI_PATH,
+  cliSource,
+  type NodeAdapter,
+  OPENCLI_JSON_PATH,
+  type RuntimeReference,
+} from './compile-cli'
+import { compiledCliOf } from './compile-manifest'
 import { compiledSdkOf } from './compile-sdk'
 import { type CompileResult, each, read, refused, type Step } from './compile-step'
+import { openCliTemplateOf } from './opencli'
 
 const NODE_ADAPTERS: ReadonlyMap<string, NodeAdapter> = new Map([
   ['clock', { port: 'clock', constructorName: 'createStandardClock', from: '@ai-swfactory-oss/clock/standard' }],
@@ -23,16 +33,24 @@ const adapterOf = (sdkPath: string, port: string): Step<NodeAdapter> => {
 export const compile = (tree: Tree, bindingPath: string, sdkPath: string, runtime: RuntimeReference): CompileResult => {
   const binding = compiledBindingOf(tree, bindingPath)
   if (binding.kind === 'refused') return binding
+  const cli = compiledCliOf(tree, bindingPath)
+  if (cli.kind === 'refused') return cli
   const sdk = compiledSdkOf(tree, sdkPath, binding.value.create)
   if (sdk.kind === 'refused') return sdk
   const adapters = each(sdk.value.ports.map(port => adapterOf(sdkPath, port)))
   if (adapters.kind === 'refused') return adapters
+  const template = openCliTemplateOf(
+    cli.value.root,
+    binding.value.globals,
+    binding.value.operations.map(operation => operation.model),
+  )
   return {
     kind: 'compiled',
     outputs: {
       entries: [
         output(BINDING_JSON_PATH, bindingJson(binding.value.globals, binding.value.operations)),
-        output(CLI_PATH, cliSource(runtime, sdk.value.packageName, sdk.value.create, adapters.value)),
+        output(OPENCLI_JSON_PATH, `${JSON.stringify(template, null, 2)}\n`),
+        output(CLI_PATH, cliSource(runtime, cli.value.packageName, sdk.value.packageName, sdk.value.create, adapters.value)),
       ],
     },
   }

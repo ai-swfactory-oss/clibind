@@ -10,6 +10,14 @@ const CALLS_SDK_MANIFEST_PATH = 'calls-sdk/package.json'
 
 const CALLS_SDK_MANIFEST = `${JSON.stringify({ name: '@acme/calls-sdk', type: 'module' }, null, 2)}\n`
 
+export const CALLS_CLI_MANIFEST_PATH = 'calls-cli/package.json'
+
+export const callsCliManifest = (bin: unknown): string => `${JSON.stringify({ name: '@acme/calls-cli', type: 'module', bin }, null, 2)}\n`
+
+export const CALLS_CLI_BIN = 'acme-calls'
+
+const CALLS_CLI_MANIFEST = callsCliManifest({ [CALLS_CLI_BIN]: './cli.ts' })
+
 export const CALLS_BINDING_SOURCE = `import { bind } from '@ai-swfactory-oss/clibind-sdk'
 import type { CreateCallsSdk } from '@acme/calls-sdk'
 
@@ -79,8 +87,18 @@ export declare const callsSdkVersion: string
 
 const encoder = new TextEncoder()
 
-const file = (path: string, text: string): FileEntry => ({ path, kind: 'file', content: encoder.encode(text), executable: false })
+export const fixtureFile = (path: string, text: string): FileEntry => ({
+  path,
+  kind: 'file',
+  content: encoder.encode(text),
+  executable: false,
+})
 
 export const callsTree = (bindingSource: string, sdkSource: string): Tree => ({
-  entries: [file(CALLS_BINDING_PATH, bindingSource), file(CALLS_SDK_MANIFEST_PATH, CALLS_SDK_MANIFEST), file(CALLS_SDK_PATH, sdkSource)],
+  entries: [
+    fixtureFile(CALLS_CLI_MANIFEST_PATH, CALLS_CLI_MANIFEST),
+    fixtureFile(CALLS_BINDING_PATH, bindingSource),
+    fixtureFile(CALLS_SDK_MANIFEST_PATH, CALLS_SDK_MANIFEST),
+    fixtureFile(CALLS_SDK_PATH, sdkSource),
+  ],
 })

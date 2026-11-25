@@ -22,6 +22,14 @@ JsonResult: interface JsonResult { readonly parser: 'json'; readonly value: unkn
 LinesResult: interface LinesResult { readonly parser: 'lines'; readonly value: readonly string[]; }
 ModelIssue: interface ModelIssue { readonly path: readonly string[]; readonly message: string; }
 Op: type Op<Api> = <O extends Operation>(select: (api: Api) => O, model: BindingModel<FieldOf<O>>) => BoundOperation<Api>;
+OpenCliArgument: interface OpenCliArgument { readonly name: string; readonly required: boolean; }
+OpenCliCommand: interface OpenCliCommand { readonly name: string; readonly options: readonly OpenCliOption[]; readonly arguments: readonly OpenCliArgument[]; readonly commands: readonly OpenCliCommand[]; }
+OpenCliDocument: interface OpenCliDocument { readonly opencli: string; readonly info: { readonly title: string; readonly version: string; }; readonly command: OpenCliRootCommand; }
+OpenCliExitCode: interface OpenCliExitCode { readonly code: number; readonly description: string; }
+OpenCliOption: interface OpenCliOption { readonly name: string; readonly required: boolean; readonly arguments: readonly OpenCliArgument[]; }
+OpenCliRootCommand: interface OpenCliRootCommand extends OpenCliCommand { readonly exitCodes: readonly OpenCliExitCode[]; }
+OpenCliTemplate: interface OpenCliTemplate { readonly opencli: string; readonly info: { readonly title: string; }; readonly command: OpenCliRootCommand; }
+OpenCliTemplateRead: type OpenCliTemplateRead = { readonly success: true; readonly template: OpenCliTemplate; } | RejectedModel;
 Operation: type Operation = (data: never) => unknown;
 OperationJson: interface OperationJson extends BindingModel<string> { readonly operation: readonly string[]; }
 OperationResult: type OperationResult = LinesResult | JsonResult | PorcelainResult | ExitCodeResult;
@@ -48,6 +56,8 @@ argvOf: const argvOf: <F extends string>(model: BindingModel<F>, input: Readonly
 bind: const bind: <Api, Config>(sdk: SdkReference<Config>, define: (op: Op<Api>) => readonly BoundOperation<Api>[]) => Binding<Api, Config>
 bindingModelJsonSchema: const bindingModelJsonSchema: () => z.core.JSONSchema.JSONSchema
 createClibind: const createClibind: () => Clibind
+openCliDocument: const openCliDocument: (template: OpenCliTemplate, version: string) => OpenCliDocument
 parseBindingJson: const parseBindingJson: (data: unknown) => BindingJsonRead
 parseBindingModel: const parseBindingModel: (data: unknown) => AcceptedModel | RejectedModel
+parseOpenCliTemplate: const parseOpenCliTemplate: (data: unknown) => OpenCliTemplateRead
 readOutput: const readOutput: (parser: Parser, output: CliOutput) => OutputRead | OutputFailed

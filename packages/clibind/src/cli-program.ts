@@ -34,7 +34,11 @@ const manifestCandidates = (path: string): readonly string[] => {
 
 const compileCommand = async (dependencies: CliDependencies, bindingPath: string, sdkPath: string): Promise<Outcome> => {
   const { clibind, files, terminal } = dependencies
-  const snapshot = await files.snapshot({ root: '', include: [bindingPath, sdkPath, ...manifestCandidates(sdkPath)], exclude: [] })
+  const snapshot = await files.snapshot({
+    root: '',
+    include: [...new Set([bindingPath, sdkPath, ...manifestCandidates(bindingPath), ...manifestCandidates(sdkPath)])],
+    exclude: [],
+  })
   if (snapshot.kind !== 'snapshot') {
     await terminal.write('stderr', `clibind: the binding and sdk could not be read: ${snapshot.kind}\n`)
     return 'failed'

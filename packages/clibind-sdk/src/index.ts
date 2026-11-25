@@ -30,6 +30,17 @@ export type {
 } from './model'
 export { argvOf, bindingModelJsonSchema, parseBindingJson, parseBindingModel, PARSERS } from './model'
 export type {
+  OpenCliArgument,
+  OpenCliCommand,
+  OpenCliDocument,
+  OpenCliExitCode,
+  OpenCliOption,
+  OpenCliRootCommand,
+  OpenCliTemplate,
+  OpenCliTemplateRead,
+} from './opencli'
+export { openCliDocument, parseOpenCliTemplate } from './opencli'
+export type {
   CliOutput,
   ExitCodeResult,
   JsonResult,

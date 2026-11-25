@@ -1,0 +1,119 @@
+{
+  "opencli": "0.1",
+  "info": {
+    "title": "acme-calls"
+  },
+  "command": {
+    "name": "acme-calls",
+    "options": [
+      {
+        "name": "--account",
+        "required": false,
+        "arguments": [
+          {
+            "name": "account",
+            "required": true
+          }
+        ]
+      }
+    ],
+    "arguments": [],
+    "commands": [
+      {
+        "name": "calls",
+        "options": [],
+        "arguments": [],
+        "commands": [
+          {
+            "name": "list",
+            "options": [
+              {
+                "name": "--since",
+                "required": true,
+                "arguments": [
+                  {
+                    "name": "since",
+                    "required": true
+                  }
+                ]
+              },
+              {
+                "name": "--limit",
+                "required": true,
+                "arguments": [
+                  {
+                    "name": "limit",
+                    "required": true
+                  }
+                ]
+              },
+              {
+                "name": "--missed",
+                "required": false,
+                "arguments": []
+              }
+            ],
+            "arguments": [
+              {
+                "name": "account",
+                "required": true
+              }
+            ],
+            "commands": []
+          },
+          {
+            "name": "get",
+            "options": [],
+            "arguments": [
+              {
+                "name": "id",
+                "required": true
+              }
+            ],
+            "commands": []
+          }
+        ]
+      },
+      {
+        "name": "numbers",
+        "options": [],
+        "arguments": [],
+        "commands": [
+          {
+            "name": "release",
+            "options": [],
+            "arguments": [
+              {
+                "name": "number",
+                "required": true
+              }
+            ],
+            "commands": []
+          }
+        ]
+      }
+    ],
+    "exitCodes": [
+      {
+        "code": 0,
+        "description": "success"
+      },
+      {
+        "code": 1,
+        "description": "failed"
+      },
+      {
+        "code": 2,
+        "description": "unreadable-output"
+      },
+      {
+        "code": 64,
+        "description": "usage"
+      },
+      {
+        "code": 141,
+        "description": "broken-pipe"
+      }
+    ]
+  }
+}

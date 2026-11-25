@@ -4,15 +4,19 @@ import {
   type FailureCategory,
   type GlobalOption,
   type InputArg,
+  openCliDocument,
   type OperationJson,
   type OptionArg,
   type Outcome,
   parseBindingJson,
+  parseOpenCliTemplate,
   type Parser,
   type ScalarType,
   type SwitchArg,
 } from '@ai-swfactory-oss/clibind-sdk'
 import type { Terminal, TerminalStream } from '@ai-swfactory-oss/terminal'
+
+import type { OwnVersion } from './own-version'
 
 export type Env = Readonly<Record<string, string | undefined>>
 
@@ -20,8 +24,12 @@ export type SdkConfig = Readonly<Record<string, ArgValue>>
 
 export type OperationData = Readonly<Record<string, ArgValue>>
 
+const OPENCLI_FLAG = '--opencli'
+
 export interface MainInput {
   readonly binding: unknown
+  readonly opencli: unknown
+  readonly version: OwnVersion
   readonly argv: readonly string[]
   readonly env: Env
   readonly createSdk: (config: SdkConfig) => unknown
@@ -207,12 +215,28 @@ const written = async (terminal: Terminal, stream: TerminalStream, text: string,
 const failed = (terminal: Terminal, step: { readonly outcome: FailureCategory; readonly message: string }): Promise<Outcome> =>
   written(terminal, 'stderr', `${step.message}\n`, step.outcome)
 
-const run = async (terminal: Terminal, { binding, argv, env, createSdk }: MainInput): Promise<Outcome> => {
+const issuesText = (issues: readonly { readonly path: readonly string[]; readonly message: string }[]): string =>
+  issues.map(issue => `${issue.path.join('.')}: ${issue.message}`).join('; ')
+
+const printedOpenCli = async (terminal: Terminal, opencli: unknown, version: OwnVersion): Promise<Outcome> => {
+  const parsed = parseOpenCliTemplate(opencli)
+  if (!parsed.success)
+    return failed(terminal, {
+      outcome: 'failed',
+      message: `the opencli template is not a compiled cli.opencli.json: ${issuesText(parsed.issues)}`,
+    })
+  if (version.kind === 'no-version')
+    return failed(terminal, { outcome: 'failed', message: "the cli's own package.json has no version, so it has no OpenCLI document" })
+  return written(terminal, 'stdout', `${JSON.stringify(openCliDocument(parsed.template, version.version), null, 2)}\n`, 'success')
+}
+
+const run = async (terminal: Terminal, { binding, opencli, version, argv, env, createSdk }: MainInput): Promise<Outcome> => {
+  if (argv.includes(OPENCLI_FLAG)) return printedOpenCli(terminal, opencli, version)
   const parsed = parseBindingJson(binding)
   if (!parsed.success)
     return failed(terminal, {
       outcome: 'failed',
-      message: `the binding is not a compiled cli.binding.json: ${parsed.issues.map(issue => `${issue.path.join('.')}: ${issue.message}`).join('; ')}`,
+      message: `the binding is not a compiled cli.binding.json: ${issuesText(parsed.issues)}`,
     })
   const globals = globalsOf(parsed.binding.globals, argv, env)
   if (globals.kind === 'failure') return failed(terminal, globals)

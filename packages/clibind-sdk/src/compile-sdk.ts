@@ -7,7 +7,8 @@ import {
   type SyntaxVariable,
 } from '@ai-swfactory-oss/typescript'
 
-import { each, fromTypeScript, read, refused, type Step, textAt } from './compile-step'
+import { nearestManifestOf } from './compile-manifest'
+import { each, fromTypeScript, read, refused, type Step } from './compile-step'
 
 export interface CompiledSdk {
   readonly packageName: string
@@ -15,37 +16,13 @@ export interface CompiledSdk {
   readonly ports: readonly string[]
 }
 
-const MANIFEST = 'package.json'
-
 const TYPE_NAME = /^[A-Za-z_$][A-Za-z0-9_$]*$/
 
-const directoriesAbove = (path: string): readonly string[] => {
-  const segments = path.split('/').slice(0, -1)
-  const directories: string[] = []
-  for (let length = segments.length; length > 0; length -= 1) directories.push(segments.slice(0, length).join('/'))
-  return [...directories, '']
-}
-
-const manifestPathIn = (directory: string): string => (directory === '' ? MANIFEST : `${directory}/${MANIFEST}`)
-
-const parsedJson = (text: string): unknown => {
-  try {
-    return JSON.parse(text)
-  } catch {
-    return null
-  }
-}
-
 const packageNameOf = (tree: Tree, sdkPath: string): Step<string> => {
-  for (const directory of directoriesAbove(sdkPath)) {
-    const manifestPath = manifestPathIn(directory)
-    const text = textAt(tree, manifestPath)
-    if (text === null) continue
-    const manifest = parsedJson(text)
-    const name = typeof manifest === 'object' && manifest !== null && 'name' in manifest ? manifest.name : null
-    return typeof name === 'string' ? read(name) : refused(manifestPath, "the sdk's package.json names no package")
-  }
-  return refused(sdkPath, 'the sdk has no package.json at or above its path')
+  const manifest = nearestManifestOf(tree, sdkPath)
+  if (manifest === null) return refused(sdkPath, 'the sdk has no package.json at or above its path')
+  const name = manifest.fields.name
+  return typeof name === 'string' ? read(name) : refused(manifest.path, "the sdk's package.json names no package")
 }
 
 type Declarations = ReadonlyMap<string, SyntaxStatement>

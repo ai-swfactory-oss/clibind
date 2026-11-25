@@ -39,6 +39,7 @@ describe('clibind compile prints the output paths', () => {
   it('clibind compile prints the path of every output the compiler returns for the binding and sdk it names', async () => {
     const terminal = createMemoryTerminal({ input: '', output: [], closed: [] })
     const files = memoryFiles([
+      file('clock-cli/package.json', JSON.stringify({ name: '@acme/clock-cli', bin: { clock: './cli.ts' } })),
       file('clock-cli/binding.ts', BINDING_SOURCE),
       file('clock-sdk/package.json', JSON.stringify({ name: '@acme/clock-sdk' })),
       file('clock-sdk/src/index.ts', SDK_SOURCE),
@@ -54,6 +55,7 @@ describe('clibind compile prints the output paths', () => {
       exitCode: 0,
       output: [
         { stream: 'stdout', text: 'cli.binding.json\n' },
+        { stream: 'stdout', text: 'cli.opencli.json\n' },
         { stream: 'stdout', text: 'cli.ts\n' },
       ],
     })
