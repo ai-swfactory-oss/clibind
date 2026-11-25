@@ -137,6 +137,15 @@ const operand = (expression: Expression, depth: number): string => {
     : `(${text})`
 }
 
+const grouped = (expression: Expression, depth: number, groupedKinds: readonly Expression['kind'][]): string => {
+  const text = expressionText(expression, depth)
+  return groupedKinds.includes(expression.kind) ? `(${text})` : text
+}
+
+const binaryOperandKinds: readonly Expression['kind'][] = ['binary', 'conditional', 'arrow', 'assign']
+
+const conditionKinds: readonly Expression['kind'][] = ['conditional', 'arrow', 'assign']
+
 const arrowBody = (body: Expression | readonly Statement[], depth: number): string => {
   if (isStatementList(body)) {
     return statementBlock(body, depth)
@@ -179,6 +188,12 @@ const expressionText = (expression: Expression, depth: number): string => {
       return 'this'
     case 'assign':
       return `${expressionText(expression.target, depth)} = ${expressionText(expression.value, depth)}`
+    case 'typeof':
+      return `typeof ${operand(expression.operand, depth)}`
+    case 'binary':
+      return `${grouped(expression.left, depth, binaryOperandKinds)} ${expression.operator} ${grouped(expression.right, depth, binaryOperandKinds)}`
+    case 'conditional':
+      return `${grouped(expression.condition, depth, conditionKinds)} ? ${expressionText(expression.whenTrue, depth)} : ${expressionText(expression.whenFalse, depth)}`
   }
 }
 
@@ -199,6 +214,10 @@ const statementText = (statement: Statement, depth: number): string => {
       )
     case 'const':
       return constText(statement.name, statement.type, statement.value, depth)
+    case 'if':
+      return `if (${expressionText(statement.condition, depth)}) ${statementBlock(statement.then, depth)}${
+        statement.otherwise.kind === 'else' ? ` else ${statementBlock(statement.otherwise.statements, depth)}` : ''
+      }`
   }
 }
 

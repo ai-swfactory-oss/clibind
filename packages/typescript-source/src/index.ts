@@ -4,14 +4,17 @@ import { renderModule } from './render'
 export type {
   ArrayExpression,
   AssignExpression,
+  BinaryExpression,
   ClassDeclaration,
   ClassMember,
+  ConditionalExpression,
   ConstDeclaration,
   DataValue,
   Declaration,
   Expression,
   ExpressionStatement,
   FunctionDeclaration,
+  IfStatement,
   ImportAttribute,
   ImportDeclaration,
   ImportDefault,
@@ -25,6 +28,7 @@ export type {
   RegExpExpression,
   Statement,
   ThisExpression,
+  TypeOfExpression,
   TypeReference,
 } from './description'
 

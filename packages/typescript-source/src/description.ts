@@ -57,6 +57,28 @@ export type Expression =
   | RegExpExpression
   | ThisExpression
   | AssignExpression
+  | TypeOfExpression
+  | BinaryExpression
+  | ConditionalExpression
+
+export interface TypeOfExpression {
+  readonly kind: 'typeof'
+  readonly operand: Expression
+}
+
+export interface BinaryExpression {
+  readonly kind: 'binary'
+  readonly operator: '===' | '!==' | '&&' | '||'
+  readonly left: Expression
+  readonly right: Expression
+}
+
+export interface ConditionalExpression {
+  readonly kind: 'conditional'
+  readonly condition: Expression
+  readonly whenTrue: Expression
+  readonly whenFalse: Expression
+}
 
 export interface AssignExpression {
   readonly kind: 'assign'
@@ -101,7 +123,14 @@ export interface ExpressionStatement {
   readonly expression: Expression
 }
 
-export type Statement = { readonly kind: 'return'; readonly value?: Expression } | ExpressionStatement | ConstDeclaration
+export interface IfStatement {
+  readonly kind: 'if'
+  readonly condition: Expression
+  readonly then: readonly Statement[]
+  readonly otherwise: { readonly kind: 'else'; readonly statements: readonly Statement[] } | { readonly kind: 'none' }
+}
+
+export type Statement = { readonly kind: 'return'; readonly value?: Expression } | ExpressionStatement | ConstDeclaration | IfStatement
 
 export type Declaration = ConstDeclaration | FunctionDeclaration | ClassDeclaration | ExpressionStatement
 
